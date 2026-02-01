@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        :root {
+            --main-pink: #E9A6C0;
+            --soft-pink: #FADADD;
+            --bg-pink: #FFF5F7;
+            --deep-pink: #D191AB;
+        }
+
+        body {
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Pretendard', sans-serif;
+            overflow: hidden;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid var(--soft-pink);
+            border-radius: 25px;
+            padding: 22px;
+            width: 320px;
+            box-shadow: 0 8px 16px rgba(233, 166, 192, 0.15);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--soft-pink);
+        }
+
+        .header h2 {
+            font-size: 18px;
+            color: var(--main-pink);
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .score-badge {
+            background-color: var(--main-pink);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .section {
+            background-color: var(--bg-pink);
+            border-radius: 15px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+        }
+
+        .label {
+            font-size: 11px;
+            color: var(--deep-pink);
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .text {
+            font-size: 13.5px;
+            color: #555;
+            line-height: 1.5;
+            margin: 0;
+            word-break: keep-all;
+        }
+
+        .money-box {
+            border: 1.5px solid var(--soft-pink);
+            background-color: white;
+        }
+
+        .luck-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+            padding: 10px;
+            background: var(--main-pink);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .luck-footer .label {
+            color: white;
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+
+        .luck-text {
+            font-size: 13px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <h2>📢 오늘의 운세</h2>
+        <div class="score-badge" id="score">로딩 중..</div>
+    </div>
+
+    <div class="section">
+        <span class="label">총운 요약</span>
+        <p class="text" id="summary">데이터를 불러오는 중입니다.</p>
+    </div>
+
+    <div class="section money-box">
+        <span class="label" style="color: var(--main-pink);">💰 재물운 & 복권운</span>
+        <p class="text" id="money">-</p>
+    </div>
+
+    <div class="luck-footer">
+        <span class="label">Luck:</span>
+        <span class="luck-text" id="luck">-</span>
+    </div>
+</div>
+
+<script>
+    async function fetchFortune() {
+        // [필수] 구글 시트 웹에 게시(CSV) 링크를 아래 작은따옴표 사이에 넣어주세요!
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pubhtml';
+        
+        try {
+            const response = await fetch(sheetUrl);
+            const csvData = await response.text();
+            const rows = csvData.split('\n').map(row => row.split(','));
+            
+            // 오늘 날짜 (YYYY-MM-DD 형식)
+            const today = new Date().toISOString().split('T')[0];
+            
+            // 시트에서 오늘 날짜와 일치하는 행 찾기
+            const todayData = rows.find(row => row[0].trim() === today);
+
+            if (todayData) {
+                // 시트 열 순서: A(0)날짜, B(1)점수, C(2)요약, D(3)재물운, E(4)행운아이템
+                document.getElementById('score').textContent = todayData[1] + "점";
+                document.getElementById('summary').textContent = todayData[2];
+                document.getElementById('money').textContent = todayData[3];
+                document.getElementById('luck').textContent = todayData[4];
+            } else {
+                document.getElementById('summary').textContent = "오늘의 운세 데이터를 시트에 입력해주세요!";
+                document.getElementById('score').textContent = "-";
+            }
+        } catch (error) {
+            document.getElementById('summary').textContent = "연결 오류: 시트 주소를 확인해주세요.";
+        }
+    }
+    fetchFortune();
+</script>
+
+</body>
+</html>
