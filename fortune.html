@@ -6,19 +6,29 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --main-pink: #E9A6C0; --soft-pink: #FADADD; --bg-pink: #FFF5F7; }
         body { background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif; }
-        .card { background: white; border: 2px solid var(--soft-pink); border-radius: 25px; padding: 22px; width: 450px; box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .header h2 { font-size: 17px; color: var(--main-pink); margin: 0; font-weight: 800; }
-        .score { background: var(--main-pink); color: white; padding: 3px 10px; border-radius: 15px; font-size: 12px; font-weight: 700; }
         
-        /* 섹션 공통 스타일 */
-        .section { background: var(--bg-pink); border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: left; }
+        /* [수정] 가로 사이즈를 450px로 키우고, 최대 너비를 100%로 설정 */
+        .card { 
+            background: white; 
+            border: 2px solid var(--soft-pink); 
+            border-radius: 25px; 
+            padding: 25px; 
+            width: 450px; 
+            max-width: 90%; 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05); 
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h2 { font-size: 19px; color: var(--main-pink); margin: 0; font-weight: 800; }
+        .score { background: var(--main-pink); color: white; padding: 4px 12px; border-radius: 15px; font-size: 13px; font-weight: 700; }
         
-        /* [수정] 각 헤더(라벨) 폰트 더 크고 굵게 */
-        .label { font-size: 14px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
+        .section { background: var(--bg-pink); border-radius: 15px; padding: 18px; margin-bottom: 12px; text-align: left; }
         
-        /* 내용 텍스트 기본 스타일 */
-        .text { font-size: 13px; color: #555; line-height: 1.6; margin: 0; }
+        /* 헤더 폰트 크고 굵게 유지 */
+        .label { font-size: 15px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
+        
+        /* 내용 텍스트 스타일 통일 */
+        .text { font-size: 14px; color: #555; line-height: 1.6; margin: 0; word-break: keep-all; }
     </style>
 </head>
 <body>
@@ -54,6 +64,7 @@
                 });
             });
 
+            // 한국 시간 기준 날짜 매칭
             const offset = new Date().getTimezoneOffset() * 60000;
             const today = new Date(Date.now() - offset).toISOString().split('T')[0];
             
@@ -78,4 +89,5 @@
 </script>
 </body>
 </html>
+
 
