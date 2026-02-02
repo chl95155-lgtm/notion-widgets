@@ -28,7 +28,7 @@
 <script>
     async function getFortune() {
         // [필수] 구글 시트의 웹 게시 CSV 주소를 여기에 넣으세요!
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pubhtml';
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/1PhAnxEbypV747kinXJGIr2Dnk5NlYemTXlqBbdOhJds/edit?usp=drivesdk';
         try {
             const res = await fetch(sheetUrl);
             const data = await res.text();
@@ -46,4 +46,5 @@
     getFortune();
 </script>
 </body>
+
 </html>
