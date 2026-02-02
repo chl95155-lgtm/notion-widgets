@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --main-pink: #E9A6C0;
+            --border-color: #FADADD;
+            --bg-white: #ffffff;
+        }
+
+        body {
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        /* 라운드 스퀘어 테두리 설정 */
+        .calendar-card {
+            background-color: var(--bg-white);
+            border: 2px solid var(--border-color); /* 핑크색 외곽 테두리 */
+            border-radius: 25px; /* 라운드 스퀘어 효과 */
+            padding: 20px;
+            width: 220px;
+            box-shadow: 0 10px 25px rgba(233, 166, 192, 0.1);
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .month-name {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--main-pink);
+            display: block;
+        }
+
+        .year-name {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--main-pink);
+            opacity: 0.7;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-top: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
+        }
+
+        .day-label, .date-cell {
+            text-align: center;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            color: #D191AB;
+        }
+
+        .day-label {
+            padding: 10px 0;
+            font-weight: 600;
+            background-color: #FFF5F7;
+        }
+
+        .date-cell {
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .other-month {
+            color: #F2D1DC;
+        }
+
+        /* 오늘 날짜 강조 */
+        .today {
+            background-color: var(--main-pink);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calendar-card">
+    <div class="calendar-header">
+        <span class="month-name" id="displayMonth">January</span>
+        <span class="year-name" id="displayYear">2026</span>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+        <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
+        <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+    </div>
+</div>
+
+<script>
+    function generateCalendar() {
+        const now = new Date(); // 현재 시간
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const today = now.getDate();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('displayMonth').textContent = monthNames[month];
+        document.getElementById('displayYear').textContent = year;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevDaysInMonth = new Date(year, month, 0).getDate();
+
+        const grid = document.getElementById('calendarGrid');
+
+        // 이전 달 날짜
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell other-month';
+            cell.textContent = prevDaysInMonth - i;
+            grid.appendChild(cell);
+        }
+
+        // 현재 달 날짜
+        for (let i = 1; i <= daysInMonth; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell';
+            if (i === today) {
+                const span = document.createElement('span');
+                span.className = 'today';
+                span.textContent = i;
+                cell.appendChild(span);
+            } else {
+                cell.textContent = i;
+            }
+            grid.appendChild(cell);
+        }
+    }
+    generateCalendar();
+</script>
+</body>
+</html>
