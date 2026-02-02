@@ -10,12 +10,15 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .header h2 { font-size: 17px; color: var(--main-pink); margin: 0; font-weight: 800; }
         .score { background: var(--main-pink); color: white; padding: 3px 10px; border-radius: 15px; font-size: 12px; font-weight: 700; }
-        /* 모든 섹션에 공통 핑크 배경 적용 */
-        .section { background: var(--bg-pink); border-radius: 15px; padding: 12px; margin-bottom: 10px; text-align: left; }
-        .label { font-size: 10px; color: var(--main-pink); font-weight: 700; margin-bottom: 3px; display: block; }
-        .text { font-size: 13px; color: #555; line-height: 1.5; margin: 0; }
-        /* 행운 아이템 강조 스타일 유지 */
-        .luck-text { font-weight: 600; color: var(--main-pink); }
+        
+        /* 섹션 공통 스타일 */
+        .section { background: var(--bg-pink); border-radius: 15px; padding: 15px; margin-bottom: 12px; text-align: left; }
+        
+        /* [수정] 각 헤더(라벨) 폰트 더 크고 굵게 */
+        .label { font-size: 14px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
+        
+        /* 내용 텍스트 기본 스타일 */
+        .text { font-size: 13px; color: #555; line-height: 1.6; margin: 0; }
     </style>
 </head>
 <body>
@@ -23,44 +26,40 @@
     <div class="header"><h2>✨ 오늘의 운세</h2><div class="score" id="score">-점</div></div>
     
     <div class="section">
-        <span class="label">📌 총운 요약</span><p class="text" id="summary">로딩 중...</p>
+        <span class="label">📌 총운 요약</span>
+        <p class="text" id="summary">로딩 중...</p>
     </div>
     
     <div class="section">
-        <span class="label">💸 재물운 & 복권운</span><p class="text" id="money">-</p>
+        <span class="label">💸 재물운 & 복권운</span>
+        <p class="text" id="money">-</p>
     </div>
     
     <div class="section">
         <span class="label">📢 행운의 컬러 & 아이템</span>
-        <p class="text luck-text" id="luck">-</p>
+        <p class="text" id="luck">-</p>
     </div>
 </div>
 <script>
     async function getFortune() {
-        // [필수] 구글 시트의 웹 게시 CSV 주소
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv';
         try {
             const res = await fetch(sheetUrl);
             const data = await res.text();
             
-            // [중요] 쉼표가 포함된 데이터도 안전하게 나누는 고급 분리 방식 적용
             const rows = data.split('\n').map(r => {
-                // 따옴표 안의 쉼표는 무시하는 정규식
                 const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
                 return r.split(regex).map(cell => {
-                    // 셀 앞뒤 공백 및 데이터 감싸는 따옴표 제거
                     return cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
                 });
             });
 
-            // 오늘 날짜 찾기 (한국 시간 기준 안전한 방식)
             const offset = new Date().getTimezoneOffset() * 60000;
             const today = new Date(Date.now() - offset).toISOString().split('T')[0];
             
             const row = rows.find(r => r[0] && r[0].trim() === today);
 
             if (row) {
-                // 데이터가 있으면 각 위치에 넣어줌
                 document.getElementById('score').textContent = (row[1] || "-") + "점";
                 document.getElementById('summary').textContent = row[2] || "내용 없음";
                 document.getElementById('money').textContent = row[3] || "내용 없음";
