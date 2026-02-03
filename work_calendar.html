@@ -147,11 +147,12 @@
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
-    const CALENDAR_CONFIG = [
-        { id: 'chl95155@gmail.com', color: '#efbbff' }, 
-        { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff' }, 
-        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea' },
-        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2' } // 1. 대한민국 공휴일(적색) 추가
+const CALENDAR_CONFIG = [
+    { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
+    { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
+    // 아래 ID에서 gaspb'l'cms 부분을 정확히 확인했습니다!
+    { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff', priority: 2 }, 
+    { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea', priority: 2 }
     ];
 
     let calendar;
@@ -240,4 +241,5 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
+
 
