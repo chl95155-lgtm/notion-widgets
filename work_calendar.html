@@ -5,57 +5,97 @@
     <title>Yellow Grid Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
-    /* 1. 캘린더 전체 텍스트 및 그리드 스타일 */
-#calendar { 
-    height: 750px; 
-    background: white; 
-    color: #3E2723; /* 전체적인 글자색을 진한 갈색으로 고정 */
-}
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        
+        :root {
+            --calendar-border: #FBC02D;
+            --data-bg: #FFF2CC;
+            --data-font: #000000;
+            --bg-yellow: #FFFDE7;
+            --header-brown: #5D4037;
+        }
 
-/* 2. 이벤트(일정) 블록 스타일 - 글자색 해결 핵심! */
-.fc-event { 
-    cursor: pointer; 
-    padding: 2px 5px !important; 
-    border-radius: 6px !important; 
-    border: 1px solid var(--main-yellow) !important; /* 테두리를 조금 더 진하게 */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
+        body {
+            background: transparent;
+            font-family: 'Pretendard', sans-serif;
+            margin: 0;
+            padding: 10px;
+        }
 
-/* 월간 보기(Grid) 일정 스타일 */
-.fc-daygrid-event { 
-    background-color: var(--soft-yellow) !important; 
-}
+        /* 1. 달력 테두리 색상 반영 */
+        .container {
+            background: white;
+            border: 3px solid var(--calendar-border);
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
 
-/* 일정 내부의 제목과 시간 글자색 */
-.fc-event-title, .fc-event-time { 
-    color: #3E2723 !important; /* 아주 진한 갈색으로 가독성 확보 */
-    font-weight: 600 !important;
-    font-size: 12px !important;
-}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-yellow);
+            padding-bottom: 10px;
+        }
 
-/* 3. 오늘 날짜 및 헤더 강조 */
-.fc-day-today { 
-    background: #FFF9C4 !important; /* 오늘 날짜 칸을 더 밝은 노란색으로 */
-}
+        .header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--header-brown);
+        }
 
-.fc-col-header-cell {
-    background-color: var(--bg-yellow);
-    padding: 10px 0 !important;
-    color: #5D4037;
-}
+        .btn-auth {
+            background: var(--calendar-border);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-/* 4. 마우스 올렸을 때(Hover) 효과 */
-.fc-event:hover {
-    filter: brightness(0.95);
-    transform: translateY(-1px);
-    transition: all 0.2s;
-}
+        #calendar {
+            height: 750px;
+            background: white;
+        }
+
+        /* 2. 달력 데이터 색상 및 폰트 색상 반영 */
+        .fc-event {
+            cursor: pointer;
+            padding: 2px 5px !important;
+            border-radius: 4px !important;
+            border: 1px solid var(--calendar-border) !important;
+            background-color: var(--data-bg) !important;
+        }
+
+        .fc-event-title, .fc-event-time {
+            color: var(--data-font) !important; /* 검은색 폰트 */
+            font-weight: 600 !important;
+            font-size: 12px !important;
+        }
+
+        /* 월간 보기만 사용하므로 상단 툴바 간소화 */
+        .fc-button-primary {
+            background-color: var(--calendar-border) !important;
+            border: none !important;
+        }
+
+        .fc-day-today {
+            background: var(--bg-yellow) !important;
+        }
+
+        .fc-col-header-cell-cushion, .fc-daygrid-day-number {
+            color: var(--header-brown) !important;
+            text-decoration: none !important;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h2 style="margin:0; font-size:18px; color:#5D4037;">💛 2026 업무 대시보드</h2>
+        <h2>💛 업무 대시보드</h2>
         <button id="auth_button" class="btn-auth" onclick="handleAuthClick()">로그인</button>
     </div>
     <div id="calendar"></div>
@@ -65,54 +105,59 @@
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     const CALENDAR_IDS = [
-        'primary', 'chl95155@gmail.com', 
+        'primary', 
+        'chl95155@gmail.com', 
         'ko.south_korea#holiday@group.v.calendar.google.com'
     ];
 
     let calendar;
     let tokenClient;
-    let gapiInited = false;
 
-    // 1. FullCalendar 초기 설정
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
+            initialView: 'dayGridMonth', // 1. 월간 보기만 유지
             locale: 'ko',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-            dayMaxEvents: true, // 일정이 많으면 '더 보기'로 표시
-            eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false, hour12: false }
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: '' // 보기 전환 버튼 제거
+            },
+            height: 'auto',
+            dayMaxEvents: true,
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false }
         });
         calendar.render();
     });
 
-    // 2. 구글 API 엔진 로드
-    function gapiLoaded() { gapi.load('client', async () => {
-        await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
-        gapiInited = true;
-    });}
+    function gapiLoaded() {
+        gapi.load('client', async () => {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
+            });
+        });
+    }
 
-    // 3. 로그인 모듈 초기화
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: ''
+            client_id: CLIENT_ID,
+            scope: 'https://www.googleapis.com/auth/calendar.readonly',
+            callback: '', 
         });
     }
 
     function handleAuthClick() {
         tokenClient.callback = async (resp) => {
             if (resp.error) return;
-            document.getElementById('auth_button').innerText = '동기화 중...';
-            await loadAllEvents();
             document.getElementById('auth_button').innerText = '동기화 완료';
+            await loadAllEvents();
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
 
-    // 4. 모든 캘린더에서 일정 불러오기
     async function loadAllEvents() {
-        calendar.removeAllEvents(); // 기존 일정 청소
-
+        calendar.removeAllEvents();
         for (const id of CALENDAR_IDS) {
             try {
                 const response = await gapi.client.calendar.events.list({
@@ -122,19 +167,14 @@
                     'singleEvents': true,
                     'orderBy': 'startTime'
                 });
-
                 const events = response.result.items.map(item => ({
                     title: item.summary,
                     start: item.start.dateTime || item.start.date,
                     end: item.end.dateTime || item.end.date,
-                    allDay: !item.start.dateTime, // 시간이 없으면 종일 일정으로 처리
-                    color: id.includes('holiday') ? '#FFCDD2' : '' // 공휴일은 살짝 다른 색으로
+                    allDay: !item.start.dateTime
                 }));
-
                 calendar.addEventSource(events);
-            } catch (err) {
-                console.warn(id + " 로드 실패:", err);
-            }
+            } catch (err) { console.warn(id + " 로드 실패"); }
         }
     }
 </script>
@@ -142,5 +182,4 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
-
 
