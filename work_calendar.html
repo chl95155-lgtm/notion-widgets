@@ -1,49 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Yellow Work Dashboard</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root { --main-yellow: #FBC02D; --soft-yellow: #FFF9C4; --bg-yellow: #FFFDE7; }
+        body { background: transparent; font-family: 'Pretendard', sans-serif; margin: 0; padding: 10px; min-height: 200px; }
+        .container { background: white; border: 3px solid var(--main-yellow); border-radius: 25px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--soft-yellow); padding-bottom: 10px; margin-bottom: 15px; }
+        .header h2 { color: #5D4037; margin: 0; font-size: 18px; }
+        .btn-auth { background: var(--main-yellow); color: white; border: none; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .btn-auth:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
+        .event-card { background: var(--bg-yellow); border-left: 5px solid var(--main-yellow); padding: 10px; margin-bottom: 8px; border-radius: 8px; text-align: left; }
+        .status-msg { font-size: 12px; color: #888; margin-top: 10px; text-align: left; background: #fdfdfd; padding: 10px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>💛 업무 일정</h2>
+        <button id="auth_button" class="btn-auth" onclick="handleAuthClick()" disabled>준비 중...</button>
+    </div>
+    <div id="content">
+        <div class="status-msg" id="status_log">🚀 시스템 가동 시작...</div>
+    </div>
+</div>
+
 <script>
+    // [설정] 청아님의 고유 열쇠들
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
-    
-    // ... (CALENDAR_IDS 등 스타일 부분은 동일) ...
+    const CALENDAR_IDS = [
+        'primary', '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', 
+        'chl95155@gmail.com', 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', 
+        'ko.south_korea#holiday@group.v.calendar.google.com'
+    ];
 
     let tokenClient;
     let gapiInited = false;
-    let gisInited = false; // 추가: GIS 초기화 여부 체크
+    let gisInited = false;
 
+    function log(msg) { document.getElementById('status_log').innerHTML += `<br>• ${msg}`; }
+
+    // 1. GAPI 로드
     async function initGapi() {
-        if (gapiInited) return; // 이미 초기화 중이면 중단
         try {
             await new Promise((resolve) => gapi.load('client', resolve));
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
-            });
+            await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
             gapiInited = true;
-            updateStatus('gapi_status', '', true);
-        } catch (e) {
-            updateStatus('gapi_status', '실패', false, e.message);
-        }
+            log("데이터 엔진 준비 완료 ✅");
+            checkReady();
+        } catch (e) { log("❌ 엔진 오류: " + e.message); }
     }
 
+    // 2. GIS 로드
     function initGis() {
-        if (gisInited) return; // 추가
         try {
             tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/calendar.readonly',
-                callback: '', 
+                client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: ''
             });
-            gisInited = true; // 추가
-            updateStatus('gis_status', '', true);
-        } catch (e) {
-            updateStatus('gis_status', '실패', false);
+            gisInited = true;
+            log("로그인 모듈 준비 완료 ✅");
+            checkReady();
+        } catch (e) { log("❌ 로그인 모듈 오류: " + e.message); }
+    }
+
+    function checkReady() {
+        if (gapiInited && gisInited) {
+            const btn = document.getElementById('auth_button');
+            btn.innerText = '로그인';
+            btn.disabled = false;
+            log("모든 준비가 끝났습니다!");
         }
     }
 
-    const timer = setInterval(() => {
+    // 스크립트 로딩 감시 (1초 간격)
+    const checkTimer = setInterval(() => {
         if (window.gapi && !gapiInited) initGapi();
         if (window.google && window.google.accounts && !gisInited) initGis();
-        if (gapiInited && gisInited) clearInterval(timer);
+        if (gapiInited && gisInited) clearInterval(checkTimer);
     }, 1000);
-    
-    // ... (이하 handleAuthClick 및 일정 로드 로직 동일) ...
-</script>
 
+    function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+            if (resp.error) {
+                log("❌ 로그인 실패: " + resp.error);
+                return;
+            }
+            document.getElementById('auth_button').innerText = '동기화 중...';
+            await loadEvents();
+        };
+        tokenClient.requestAccessToken({prompt: 'consent'});
+    }
+
+    async function loadEvents() {
+        let events = [];
+        for (const id of CALENDAR_IDS) {
+            try {
+                const res = await gapi.client.calendar.events.list({
+                    'calendarId': id, 'timeMin': new Date().toISOString(), 'showDeleted': false, 'singleEvents': true, 'maxResults': 5, 'orderBy': 'startTime'
+                });
+                if (res.result.items) events = events.concat(res.result.items);
+            } catch (e) { console.warn(id + " 로드 실패"); }
+        }
+        events.sort((a, b
