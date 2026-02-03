@@ -6,108 +6,108 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        
-        :root {
-            --main-yellow: #FBC02D;
-            --soft-yellow: #FFF9C4;
-            --bg-yellow: #FFFDE7;
-            --deep-brown: #3E2723;
-            --header-brown: #5D4037;
-        }
+        :root { --main-yellow: #FBC02D; --soft-yellow: #FFF9C4; --bg-yellow: #FFFDE7; }
+        body { background: transparent; font-family: 'Pretendard', sans-serif; margin: 0; padding: 10px; }
+        .container { background: white; border: 3px solid var(--main-yellow); border-radius: 25px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-auth { background: var(--main-yellow); color: white; border: none; padding: 8px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        #calendar { height: 750px; background: white; }
+        /* 캘린더 내부 노란색 커스텀 */
+        .fc-event { cursor: pointer; padding: 2px 4px; border-radius: 4px !important; font-size: 11px !important; font-weight: 500 !important; }
+        .fc-daygrid-event { background-color: var(--soft-yellow) !important; border: 1px solid var(--main-yellow) !important; color: #5D4037 !important; }
+        .fc-v-event { background-color: var(--main-yellow) !important; border: none !important; }
+        .fc-day-today { background: var(--bg-yellow) !important; }
+        .fc-button-primary { background-color: var(--main-yellow) !important; border: none !important; text-transform: capitalize !important; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2 style="margin:0; font-size:18px; color:#5D4037;">💛 2026 업무 대시보드</h2>
+        <button id="auth_button" class="btn-auth" onclick="handleAuthClick()">로그인</button>
+    </div>
+    <div id="calendar"></div>
+</div>
 
-        body {
-            background: transparent;
-            font-family: 'Pretendard', sans-serif;
-            margin: 0;
-            padding: 10px;
-        }
+<script>
+    const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
+    const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
+    const CALENDAR_IDS = [
+        'primary', 'chl95155@gmail.com', 
+        'ko.south_korea#holiday@group.v.calendar.google.com'
+    ];
 
-        .container {
-            background: white;
-            border: 3px solid var(--main-yellow);
-            border-radius: 25px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
+    let calendar;
+    let tokenClient;
+    let gapiInited = false;
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--soft-yellow);
-            padding-bottom: 10px;
-        }
+    // 1. FullCalendar 초기 설정
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ko',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+            dayMaxEvents: true, // 일정이 많으면 '더 보기'로 표시
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false, hour12: false }
+        });
+        calendar.render();
+    });
 
-        .header h2 {
-            margin: 0;
-            font-size: 20px;
-            color: var(--header-brown);
-        }
+    // 2. 구글 API 엔진 로드
+    function gapiLoaded() { gapi.load('client', async () => {
+        await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
+        gapiInited = true;
+    });}
 
-        .btn-auth {
-            background: var(--main-yellow);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
+    // 3. 로그인 모듈 초기화
+    function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: ''
+        });
+    }
 
-        .btn-auth:hover {
-            background: #F9A825;
-            transform: scale(1.05);
-        }
+    function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+            if (resp.error) return;
+            document.getElementById('auth_button').innerText = '동기화 중...';
+            await loadAllEvents();
+            document.getElementById('auth_button').innerText = '동기화 완료';
+        };
+        tokenClient.requestAccessToken({prompt: 'consent'});
+    }
 
-        /* 캘린더 스타일 커스텀 */
-        #calendar {
-            height: 750px;
-            background: white;
-        }
+    // 4. 모든 캘린더에서 일정 불러오기
+    async function loadAllEvents() {
+        calendar.removeAllEvents(); // 기존 일정 청소
 
-        /* 일정 블록 스타일 (글자색 해결 핵심) */
-        .fc-event {
-            cursor: pointer;
-            padding: 2px 5px !important;
-            border-radius: 6px !important;
-            border: 1px solid var(--main-yellow) !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
+        for (const id of CALENDAR_IDS) {
+            try {
+                const response = await gapi.client.calendar.events.list({
+                    'calendarId': id,
+                    'timeMin': (new Date()).toISOString(),
+                    'showDeleted': false,
+                    'singleEvents': true,
+                    'orderBy': 'startTime'
+                });
 
-        .fc-daygrid-event {
-            background-color: var(--soft-yellow) !important;
-        }
+                const events = response.result.items.map(item => ({
+                    title: item.summary,
+                    start: item.start.dateTime || item.start.date,
+                    end: item.end.dateTime || item.end.date,
+                    allDay: !item.start.dateTime, // 시간이 없으면 종일 일정으로 처리
+                    color: id.includes('holiday') ? '#FFCDD2' : '' // 공휴일은 살짝 다른 색으로
+                }));
 
-        /* 일정 내부 텍스트 색상 */
-        .fc-event-title, .fc-event-time {
-            color: var(--deep-brown) !important; /* 진한 갈색으로 가독성 확보 */
-            font-weight: 600 !important;
-            font-size: 12px !important;
+                calendar.addEventSource(events);
+            } catch (err) {
+                console.warn(id + " 로드 실패:", err);
+            }
         }
-
-        /* 요일 헤더 및 오늘 날짜 강조 */
-        .fc-col-header-cell {
-            background-color: var(--bg-yellow);
-            padding: 10px 0 !important;
-        }
-
-        .fc-col-header-cell-cushion {
-            color: var(--header-brown) !important;
-            text-decoration: none !important;
-        }
-
-        .fc-day-today {
-            background: var(--bg-yellow) !important;
-        }
-
-        .fc-daygrid-day-number {
-            color: var(--header-brown) !important;
-            text-decoration: none !important;
-            font-weight: 500;
-        }
-
-        /* 상
+    }
+</script>
+<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>
 
