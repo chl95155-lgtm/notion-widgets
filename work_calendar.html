@@ -29,11 +29,12 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
+        /* 1. 제목 및 헤더 스타일 */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border-bottom: 2px solid var(--bg-yellow);
             padding-bottom: 10px;
         }
@@ -52,6 +53,42 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
+        }
+
+        /* 2. 년월 가운데 정렬을 위한 툴바 커스텀 */
+        .fc-header-toolbar {
+            display: flex !important;
+            align-items: center;
+            margin-top: 10px !important;
+        }
+        .fc-toolbar-chunk {
+            flex: 1;
+            display: flex;
+        }
+        .fc-toolbar-chunk:nth-child(1) { justify-content: flex-start; }
+        .fc-toolbar-chunk:nth-child(2) { justify-content: center; } /* 년월 타이틀 중앙 */
+        .fc-toolbar-chunk:nth-child(3) { justify-content: flex-end; }
+
+        .fc-toolbar-title {
+            font-size: 1.2em !important;
+            color: var(--header-brown);
+        }
+
+        /* 3. 오늘 날짜 숫자 원형 표기 (#FBC02D) */
+        .fc-day-today {
+            background: none !important; /* 배경 강조 제거 */
+        }
+        .fc-day-today .fc-daygrid-day-number {
+            background-color: var(--calendar-border) !important;
+            color: white !important;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            margin: 4px auto 0 !important; /* 숫자 위치 중앙 조정 */
+            padding: 0 !important;
         }
 
         #calendar {
@@ -77,20 +114,22 @@
             text-decoration: none !important;
             font-weight: 500;
             font-size: 14px;
+            display: block;
+            text-align: center;
+            padding: 6px 0;
         }
 
         .fc-col-header-cell-cushion {
             color: var(--header-brown) !important;
             text-decoration: none !important;
-        }
-
-        .fc-day-today {
-            background: var(--bg-yellow) !important;
+            padding: 8px 0 !important;
+            display: block;
         }
 
         .fc-button-primary {
             background-color: var(--calendar-border) !important;
             border: none !important;
+            padding: 4px 8px !important;
         }
     </style>
 </head>
@@ -107,7 +146,6 @@
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
-    /* 3개 캘린더 ID 및 색상 설정 */
     const CALENDAR_CONFIG = [
         { id: 'chl95155@gmail.com', color: '#efbbff' }, 
         { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff' }, 
@@ -116,17 +154,23 @@
 
     let calendar;
     let tokenClient;
-    let refreshTimer; // 실시간 업데이트를 위한 타이머 변수
+    let refreshTimer;
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
+            initialView: 'dayGridMonth', // 한 달씩만 보기
             locale: 'ko',
-            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+            headerToolbar: {
+                left: 'today prev,next',
+                center: 'title', // 타이틀 중앙 정렬을 위해 center에 배치
+                right: '' // 주간/일간 버튼 제거
+            },
             height: 'auto',
             dayMaxEvents: true,
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+            
+            // 날짜 표시 로직 (1일만 월 표기)
             dayCellContent: function(arg) {
                 let date = arg.date;
                 let dayNum = date.getDate();
@@ -153,19 +197,14 @@
         tokenClient.callback = async (resp) => {
             if (resp.error) return;
             const btn = document.getElementById('auth_button');
-            
-            // 1. 즉시 동기화 실행
             await loadAllEvents();
             btn.innerText = '동기화 완료';
 
-            // 2. 10분마다 실시간 자동 업데이트 시작 (600,000ms)
-            if (refreshTimer) clearInterval(refreshTimer); // 중복 실행 방지
+            if (refreshTimer) clearInterval(refreshTimer);
             refreshTimer = setInterval(async () => {
                 await loadAllEvents();
                 const now = new Date();
-                const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-                btn.innerText = `최근 업데이트: ${timeStr}`;
-                console.log(`[${timeStr}] 실시간 일정 동기화 완료`);
+                btn.innerText = `최근 업데이트: ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
             }, 10 * 60 * 1000);
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
@@ -199,5 +238,6 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
+
 
 
