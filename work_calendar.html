@@ -11,7 +11,7 @@
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--soft-yellow); padding-bottom: 10px; margin-bottom: 15px; }
         .header h2 { color: #5D4037; margin: 0; font-size: 18px; }
         .btn-auth { background: var(--main-yellow); color: white; border: none; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-auth:hover { background: #F9A825; }
+        .btn-auth:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
         .event-card { background: var(--bg-yellow); border-left: 5px solid var(--main-yellow); padding: 10px; margin-bottom: 8px; border-radius: 8px; text-align: left; }
         .event-time { font-size: 11px; color: #795548; font-weight: bold; }
         .event-title { font-size: 13px; color: #3E2723; margin-top: 3px; font-weight: 500; }
@@ -21,18 +21,19 @@
 <div class="container">
     <div class="header">
         <h2>💛 업무 일정</h2>
-        <button id="auth_button" class="btn-auth" onclick="handleAuthClick()">로그인</button>
+        <button id="auth_button" class="btn-auth" onclick="handleAuthClick()" disabled>준비 중...</button>
     </div>
-    <div id="content" style="font-size: 13px; color: #888;">로그인을 눌러 일정을 불러오세요.</div>
+    <div id="content" style="font-size: 13px; color: #888;">연결 상태를 확인 중입니다...</div>
 </div>
 
 <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+
 <script>
+    // [확인 완료] 청아님의 키와 캘린더 ID들입니다.
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
-    // 보고 싶은 캘린더 ID들 (정리 완료)
     const CALENDAR_IDS = [
         'primary', 
         '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', 
@@ -43,26 +44,43 @@
 
     let tokenClient;
     let gapiInited = false;
-    let gisInited = false;
 
+    // 1. GAPI 초기화
     function gapiLoaded() { gapi.load('client', initializeGapiClient); }
     async function initializeGapiClient() {
-        await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
-        gapiInited = true;
+        try {
+            await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
+            gapiInited = true;
+            checkReady();
+        } catch (e) { document.getElementById('content').innerText = "API 키 오류: " + e.message; }
     }
+
+    // 2. GIS(로그인 도구) 초기화
     function gisLoaded() {
-        tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: '' });
-        gisInited = true;
+        try {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/calendar.readonly',
+                callback: '', // 나중에 정의
+            });
+            checkReady();
+        } catch (e) { document.getElementById('content').innerText = "클라이언트 ID 오류: " + e.message; }
+    }
+
+    // 3. 둘 다 준비되면 버튼 활성화
+    function checkReady() {
+        if (gapiInited && tokenClient) {
+            const btn = document.getElementById('auth_button');
+            btn.innerText = '로그인';
+            btn.disabled = false;
+            document.getElementById('content').innerText = '준비되었습니다. 로그인을 눌러주세요.';
+        }
     }
 
     function handleAuthClick() {
-        if (!tokenClient) {
-            alert("서비스가 준비 중입니다. 잠시만 기다려주세요!");
-            return;
-        }
         tokenClient.callback = async (resp) => {
             if (resp.error !== undefined) throw (resp);
-            document.getElementById('auth_button').innerText = '동기화 완료';
+            document.getElementById('auth_button').innerText = '동기화 중...';
             await listUpcomingEvents();
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
@@ -90,12 +108,16 @@
                     <div class="event-time">${new Date(event.start.dateTime || event.start.date).toLocaleString('ko-KR', {hour:'2-digit', minute:'2-digit'})}</div>
                     <div class="event-title">${event.summary}</div>
                 </div>
-            `).join('') || '오늘 예정된 일정이 없습니다.';
+            `).slice(0, 10).join('') || '오늘 예정된 일정이 없습니다.';
+            document.getElementById('auth_button').innerText = '동기화 완료';
         } catch (err) {
-            document.getElementById('content').innerText = "일정을 불러오는 중 오류가 발생했습니다.";
-            console.error(err);
+            document.getElementById('content').innerText = "일정 불러오기 실패: " + err.message;
         }
     }
 </script>
 </body>
 </html>
+</script>
+</body>
+</html>
+
