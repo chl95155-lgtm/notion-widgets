@@ -12,7 +12,6 @@
             --data-font: #3E2723;
             --bg-yellow: #FFFDE7;
             --header-brown: #5D4037;
-            --holiday-red: #D32F2F; /* 공휴일 적색 */
         }
 
         body {
@@ -73,7 +72,6 @@
             font-weight: 700;
         }
 
-        /* 오늘 날짜 왼쪽 정렬 및 원형 강조 */
         .fc-day-today { background: none !important; }
         .fc-daygrid-day-top {
             display: flex;
@@ -91,12 +89,6 @@
             justify-content: center;
             margin-top: 4px !important;
             padding: 0 !important;
-        }
-
-        /* 2. 공휴일 및 일요일 날짜 적색 표기 */
-        .fc-day-sun .fc-daygrid-day-number,
-        .is-holiday .fc-daygrid-day-number {
-            color: var(--holiday-red) !important;
         }
 
         #calendar {
@@ -134,11 +126,6 @@
             display: block;
         }
 
-        /* 토요일 파란색 (선택사항) */
-        .fc-day-sat .fc-daygrid-day-number {
-            color: #1976D2 !important;
-        }
-
         .fc-button-primary {
             background-color: var(--calendar-border) !important;
             border: none !important;
@@ -161,15 +148,15 @@
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
     const CALENDAR_CONFIG = [
-        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, // 공휴일 우선
-        { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
-        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff', priority: 2 }, 
-        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea', priority: 2 }
+        { id: 'chl95155@gmail.com', color: '#efbbff' }, 
+        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff' }, 
+        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea' },
+        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2' } // 1. 대한민국 공휴일(적색) 추가
     ];
 
     let calendar;
     let tokenClient;
-    let holidayDates = new Set(); // 공휴일 날짜 저장용
+    let refreshTimer;
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
@@ -178,17 +165,14 @@
             locale: 'ko',
             showNonCurrentDates: false, 
             fixedWeekCount: false, 
-            headerToolbar: { left: 'today prev,next', center: 'title', right: '' },
+            headerToolbar: {
+                left: 'today prev,next',
+                center: 'title',
+                right: ''
+            },
             height: 'auto',
             dayMaxEvents: 3,
-            eventOrder: 'priority', // 1. 공휴일이 가장 위로 오도록 정렬
-            
-            // 공휴일 날짜에 클래스 추가
-            dayCellClassNames: function(arg) {
-                const dateStr = arg.date.toISOString().split('T')[0];
-                return holidayDates.has(dateStr) ? ['is-holiday'] : [];
-            },
-
+            eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             dayCellContent: function(arg) {
                 let date = arg.date;
                 let dayNum = date.getDate();
@@ -214,45 +198,42 @@
     function handleAuthClick() {
         tokenClient.callback = async (resp) => {
             if (resp.error) return;
+            const btn = document.getElementById('auth_button');
             await loadAllEvents();
-            document.getElementById('auth_button').innerText = '동기화 완료';
+            btn.innerText = '동기화 완료';
+
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = setInterval(async () => {
+                await loadAllEvents();
+                const now = new Date();
+                btn.innerText = `최근 업데이트: ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            }, 10 * 60 * 1000);
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
 
     async function loadAllEvents() {
         calendar.removeAllEvents();
-        holidayDates.clear();
-
         for (const config of CALENDAR_CONFIG) {
             try {
                 const response = await gapi.client.calendar.events.list({
                     'calendarId': config.id,
-                    'timeMin': (new Date(new Date().getFullYear(), 0, 1)).toISOString(), // 올해 전체
-                    'singleEvents': true
+                    'timeMin': (new Date()).toISOString(),
+                    'showDeleted': false,
+                    'singleEvents': true,
+                    'orderBy': 'startTime'
                 });
-                
-                const events = response.result.items.map(item => {
-                    const startStr = item.start.dateTime || item.start.date;
-                    // 공휴일인 경우 날짜 저장
-                    if (config.id.includes('holiday')) {
-                        holidayDates.add(startStr.split('T')[0]);
-                    }
-
-                    return {
-                        title: item.summary,
-                        start: startStr,
-                        end: item.end.dateTime || item.end.date,
-                        backgroundColor: config.color,
-                        borderColor: config.color,
-                        display: 'block',
-                        extendedProps: { priority: config.priority }
-                    };
-                });
+                const events = response.result.items.map(item => ({
+                    title: item.summary,
+                    start: item.start.dateTime || item.start.date,
+                    end: item.end.dateTime || item.end.date,
+                    backgroundColor: config.color,
+                    borderColor: config.color,
+                    display: 'block'
+                }));
                 calendar.addEventSource(events);
             } catch (err) { console.warn(config.id + " 로드 실패"); }
         }
-        calendar.render(); // 날짜 색상 반영을 위해 재렌더링
     }
 </script>
 <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
