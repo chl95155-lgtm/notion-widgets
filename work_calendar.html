@@ -5,19 +5,51 @@
     <title>Yellow Grid Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --main-yellow: #FBC02D; --soft-yellow: #FFF9C4; --bg-yellow: #FFFDE7; }
-        body { background: transparent; font-family: 'Pretendard', sans-serif; margin: 0; padding: 10px; }
-        .container { background: white; border: 3px solid var(--main-yellow); border-radius: 25px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-auth { background: var(--main-yellow); color: white; border: none; padding: 8px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; }
-        #calendar { height: 750px; background: white; }
-        /* 캘린더 내부 노란색 커스텀 */
-        .fc-event { cursor: pointer; padding: 2px 4px; border-radius: 4px !important; font-size: 11px !important; font-weight: 500 !important; }
-        .fc-daygrid-event { background-color: var(--soft-yellow) !important; border: 1px solid var(--main-yellow) !important; color: #5D4037 !important; }
-        .fc-v-event { background-color: var(--main-yellow) !important; border: none !important; }
-        .fc-day-today { background: var(--bg-yellow) !important; }
-        .fc-button-primary { background-color: var(--main-yellow) !important; border: none !important; text-transform: capitalize !important; }
+    /* 1. 캘린더 전체 텍스트 및 그리드 스타일 */
+#calendar { 
+    height: 750px; 
+    background: white; 
+    color: #3E2723; /* 전체적인 글자색을 진한 갈색으로 고정 */
+}
+
+/* 2. 이벤트(일정) 블록 스타일 - 글자색 해결 핵심! */
+.fc-event { 
+    cursor: pointer; 
+    padding: 2px 5px !important; 
+    border-radius: 6px !important; 
+    border: 1px solid var(--main-yellow) !important; /* 테두리를 조금 더 진하게 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 월간 보기(Grid) 일정 스타일 */
+.fc-daygrid-event { 
+    background-color: var(--soft-yellow) !important; 
+}
+
+/* 일정 내부의 제목과 시간 글자색 */
+.fc-event-title, .fc-event-time { 
+    color: #3E2723 !important; /* 아주 진한 갈색으로 가독성 확보 */
+    font-weight: 600 !important;
+    font-size: 12px !important;
+}
+
+/* 3. 오늘 날짜 및 헤더 강조 */
+.fc-day-today { 
+    background: #FFF9C4 !important; /* 오늘 날짜 칸을 더 밝은 노란색으로 */
+}
+
+.fc-col-header-cell {
+    background-color: var(--bg-yellow);
+    padding: 10px 0 !important;
+    color: #5D4037;
+}
+
+/* 4. 마우스 올렸을 때(Hover) 효과 */
+.fc-event:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+    transition: all 0.2s;
+}
     </style>
 </head>
 <body>
@@ -110,4 +142,5 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
+
 
