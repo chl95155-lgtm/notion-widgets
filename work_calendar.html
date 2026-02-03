@@ -70,14 +70,14 @@
             color: var(--header-brown);
         }
 
-        /* 2. Today 숫자 오른쪽 정렬 및 원형 강조 */
+        /* 1. Today 및 모든 날짜 왼쪽 정렬 */
         .fc-day-today {
             background: none !important;
         }
         .fc-daygrid-day-top {
             display: flex;
-            justify-content: flex-end; /* 전체 날짜 오른쪽 정렬 */
-            padding-right: 5px;
+            justify-content: flex-start; /* 왼쪽 정렬 반영 */
+            padding-left: 5px;
         }
         .fc-day-today .fc-daygrid-day-number {
             background-color: var(--calendar-border) !important;
@@ -97,12 +97,12 @@
             background: white;
         }
 
-        /* 1. 캘린더 데이터 색상으로 꽉 채워서 표기 */
+        /* 2. 일정 데이터 배경색 꽉 채우기 */
         .fc-event {
             cursor: pointer;
             padding: 3px 6px !important;
             border-radius: 4px !important;
-            border: none !important; /* 테두리 제거하여 꽉 찬 느낌 강조 */
+            border: none !important; 
             margin: 1px 2px !important;
         }
 
@@ -162,9 +162,9 @@
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ko',
-            // 3. 캘린더 날짜 표기는 한달씩만 표기 (다음/이전 달 날짜 숨김)
+            // 3. 현재 월만 표기
             showNonCurrentDates: false, 
-            fixedWeekCount: false, // 실제 주차 수에 맞춰 높이 조절
+            fixedWeekCount: false, 
             headerToolbar: {
                 left: 'today prev,next',
                 center: 'title',
@@ -230,7 +230,7 @@
                     end: item.end.dateTime || item.end.date,
                     allDay: !item.start.dateTime,
                     backgroundColor: config.color,
-                    borderColor: config.color // 배경색과 일치시켜 꽉 찬 느낌 구현
+                    borderColor: config.color 
                 }));
                 calendar.addEventSource(events);
             } catch (err) { console.warn(config.id + " 로드 실패"); }
@@ -241,5 +241,3 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
-
-
