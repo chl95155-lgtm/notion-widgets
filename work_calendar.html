@@ -5,20 +5,18 @@
     <title>Yellow Grid Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
-        /* 5. 폰트 변경 (구글 폰트 Noto Sans KR 추가) */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
         
         :root {
             --calendar-border: #FBC02D;
-            --data-bg: #FFF2CC;
-            --data-font: #3E2723; /* 4. 일정 데이터 폰트색 반영 */
+            --data-font: #3E2723;
             --bg-yellow: #FFFDE7;
             --header-brown: #5D4037;
         }
 
         body {
             background: transparent;
-            font-family: 'Noto Sans KR', sans-serif; /* 폰트 적용 */
+            font-family: 'Noto Sans KR', sans-serif;
             margin: 0;
             padding: 10px;
         }
@@ -40,7 +38,6 @@
             padding-bottom: 10px;
         }
 
-        /* 1. 제목 변경 반영 */
         .header h2 {
             margin: 0;
             font-size: 20px;
@@ -62,22 +59,20 @@
             background: white;
         }
 
-        /* 달력 데이터 스타일 */
+        /* 캘린더 데이터 스타일 */
         .fc-event {
             cursor: pointer;
             padding: 2px 5px !important;
             border-radius: 4px !important;
-            border: 1px solid var(--calendar-border) !important;
-            background-color: var(--data-bg) !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
         }
 
         .fc-event-title, .fc-event-time {
-            color: var(--data-font) !important; /* #3E2723 반영 */
+            color: var(--data-font) !important;
             font-weight: 600 !important;
             font-size: 12px !important;
         }
 
-        /* 날짜 숫자 스타일 */
         .fc-daygrid-day-number {
             color: var(--header-brown) !important;
             text-decoration: none !important;
@@ -112,11 +107,11 @@
 <script>
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
-    const CALENDAR_IDS = [
-        'primary',
-        'chl95155@gmail.com',
-        '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com',
-        'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com'
+    
+    /* 1. 새로운 주소의 캘린더 ID와 색상 반영 (총 2개) */
+    const CALENDAR_CONFIG = [
+        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#FFF2CC' }, // 노란색 배경 (#f6bf26 대용 파스텔)
+        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#E0F2F1' } // 민트색 배경 (#68c7c1 대용 파스텔)
     ];
 
     let calendar;
@@ -127,25 +122,16 @@
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ko',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: ''
-            },
+            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
             height: 'auto',
             dayMaxEvents: true,
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
             
-            /* 2, 3. 날짜 표시 로직 커스텀 */
+            /* 날짜 표시 커스텀 (숫자만, 1일은 월 표기) */
             dayCellContent: function(arg) {
                 let date = arg.date;
                 let dayNum = date.getDate();
-                
-                // 1일인 경우에만 '월'과 같이 기재
-                if (dayNum === 1) {
-                    return { html: `<span>${date.getMonth() + 1}월 1일</span>` };
-                }
-                // 나머지는 숫자만 기재
+                if (dayNum === 1) { return { html: `<span>${date.getMonth() + 1}월 1일</span>` }; }
                 return { html: `<span>${dayNum}</span>` };
             }
         });
@@ -154,18 +140,13 @@
 
     function gapiLoaded() {
         gapi.load('client', async () => {
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
-            });
+            await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
         });
     }
 
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: 'https://www.googleapis.com/auth/calendar.readonly',
-            callback: '', 
+            client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: '', 
         });
     }
 
@@ -180,10 +161,10 @@
 
     async function loadAllEvents() {
         calendar.removeAllEvents();
-        for (const id of CALENDAR_IDS) {
+        for (const config of CALENDAR_CONFIG) {
             try {
                 const response = await gapi.client.calendar.events.list({
-                    'calendarId': id,
+                    'calendarId': config.id,
                     'timeMin': (new Date()).toISOString(),
                     'showDeleted': false,
                     'singleEvents': true,
@@ -193,10 +174,12 @@
                     title: item.summary,
                     start: item.start.dateTime || item.start.date,
                     end: item.end.dateTime || item.end.date,
-                    allDay: !item.start.dateTime
+                    allDay: !item.start.dateTime,
+                    backgroundColor: config.color,
+                    borderColor: 'rgba(0,0,0,0.1)'
                 }));
                 calendar.addEventSource(events);
-            } catch (err) { console.warn(id + " 로드 실패"); }
+            } catch (err) { console.warn(config.id + " 로드 실패"); }
         }
     }
 </script>
