@@ -18,14 +18,14 @@
             background: transparent;
             font-family: 'Noto Sans KR', sans-serif;
             margin: 0;
-            padding: 10px;
+            padding: 5px; /* 외부 여백 최소화 */
         }
 
         .container {
             background: white;
             border: 3px solid var(--calendar-border);
             border-radius: 25px;
-            padding: 20px;
+            padding: 15px; /* 내부 패딩 조정 */
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
@@ -33,14 +33,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             border-bottom: 2px solid var(--bg-yellow);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .header h2 {
             margin: 0;
-            font-size: 20px;
+            font-size: 18px;
             color: var(--header-brown);
         }
 
@@ -48,17 +48,19 @@
             background: var(--calendar-border);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 12px;
+            padding: 8px 16px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 13px;
         }
 
-        /* 년월 중앙 정렬 툴바 */
+        /* 년월 중앙 정렬 및 폰트 사이즈 확대 */
         .fc-header-toolbar {
             display: flex !important;
             align-items: center;
-            margin-top: 10px !important;
+            margin-top: 5px !important;
+            margin-bottom: 10px !important;
         }
         .fc-toolbar-chunk { flex: 1; display: flex; }
         .fc-toolbar-chunk:nth-child(1) { justify-content: flex-start; }
@@ -66,25 +68,24 @@
         .fc-toolbar-chunk:nth-child(3) { justify-content: flex-end; }
 
         .fc-toolbar-title {
-            font-size: 1.2em !important;
+            font-size: 1.6em !important; /* 1. 년월 폰트 사이즈 확대 */
             color: var(--header-brown);
+            font-weight: 700;
         }
 
-        /* 1. Today 및 모든 날짜 왼쪽 정렬 */
-        .fc-day-today {
-            background: none !important;
-        }
+        /* 2. Today 숫자 왼쪽 정렬 */
+        .fc-day-today { background: none !important; }
         .fc-daygrid-day-top {
             display: flex;
-            justify-content: flex-start; /* 왼쪽 정렬 반영 */
+            justify-content: flex-start; 
             padding-left: 5px;
         }
         .fc-day-today .fc-daygrid-day-number {
             background-color: var(--calendar-border) !important;
             color: white !important;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             display: flex !important;
             align-items: center;
             justify-content: center;
@@ -92,45 +93,47 @@
             padding: 0 !important;
         }
 
+        /* 2. 전체 테두리 높이 조정 */
         #calendar {
-            height: 750px;
+            height: 600px; /* 높이를 750px에서 600px로 축소 */
             background: white;
         }
 
-        /* 2. 일정 데이터 배경색 꽉 채우기 */
         .fc-event {
             cursor: pointer;
             padding: 3px 6px !important;
             border-radius: 4px !important;
             border: none !important; 
             margin: 1px 2px !important;
+            display: block !important;
         }
 
         .fc-event-title, .fc-event-time {
             color: var(--data-font) !important;
             font-weight: 600 !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
         }
 
         .fc-daygrid-day-number {
             color: var(--header-brown) !important;
             text-decoration: none !important;
             font-weight: 500;
-            font-size: 14px;
-            padding: 6px 4px;
+            font-size: 13px;
+            padding: 4px 4px;
         }
 
         .fc-col-header-cell-cushion {
             color: var(--header-brown) !important;
             text-decoration: none !important;
-            padding: 8px 0 !important;
+            padding: 5px 0 !important;
             display: block;
         }
 
         .fc-button-primary {
             background-color: var(--calendar-border) !important;
             border: none !important;
-            padding: 4px 8px !important;
+            padding: 3px 6px !important;
+            font-size: 12px !important;
         }
     </style>
 </head>
@@ -149,7 +152,7 @@
     
     const CALENDAR_CONFIG = [
         { id: 'chl95155@gmail.com', color: '#efbbff' }, 
-        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#ece6ff' }, 
+        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff' }, 
         { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea' }
     ];
 
@@ -171,9 +174,8 @@
                 right: ''
             },
             height: 'auto',
-            dayMaxEvents: true,
+            dayMaxEvents: 3, // 높이가 줄어들었으므로 이벤트를 적절히 제한
             eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-            
             dayCellContent: function(arg) {
                 let date = arg.date;
                 let dayNum = date.getDate();
@@ -228,9 +230,9 @@
                     title: item.summary,
                     start: item.start.dateTime || item.start.date,
                     end: item.end.dateTime || item.end.date,
-                    allDay: !item.start.dateTime,
                     backgroundColor: config.color,
-                    borderColor: config.color 
+                    borderColor: config.color,
+                    display: 'block'
                 }));
                 calendar.addEventSource(events);
             } catch (err) { console.warn(config.id + " 로드 실패"); }
