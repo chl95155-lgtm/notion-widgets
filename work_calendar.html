@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Yellow Work Calendar - Debug</title>
+    <title>Yellow Work Calendar - Final Fix</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --main-yellow: #FBC02D; --soft-yellow: #FFF9C4; --bg-yellow: #FFFDE7; }
@@ -12,7 +12,7 @@
         .header h2 { color: #5D4037; margin: 0; font-size: 18px; }
         .btn-auth { background: var(--main-yellow); color: white; border: none; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; }
         .btn-auth:disabled { background: #eee; color: #aaa; }
-        .status-box { font-size: 12px; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: #f8f9fa; line-height: 1.6; }
+        .status-box { font-size: 12px; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: #f8f9fa; line-height: 1.6; text-align: left; }
         .success { color: green; font-weight: bold; }
         .error { color: red; font-weight: bold; }
     </style>
@@ -20,56 +20,52 @@
 <body>
 <div class="container">
     <div class="header">
-        <h2>💛 업무 일정 (진단 모드)</h2>
+        <h2>💛 업무 일정 (최종 점검)</h2>
         <button id="auth_button" class="btn-auth" onclick="handleAuthClick()" disabled>준비 중...</button>
     </div>
     <div id="debug_status" class="status-box">
-        ⏳ 연결 상태 확인 중...<br>
-        - 구글 API 엔진: <span id="gapi_status">대기</span><br>
-        - 로그인 시스템: <span id="gis_status">대기</span>
+        ⏳ 시스템 엔진 가동 중...<br>
+        - 구글 API 엔진: <span id="gapi_status">확인 중...</span><br>
+        - 로그인 시스템: <span id="gis_status">확인 중...</span>
     </div>
     <div id="content"></div>
 </div>
-
-<script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-<script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 
 <script>
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
+    const CALENDAR_IDS = [
+        'primary', '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', 
+        'chl95155@gmail.com', 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', 
+        'ko.south_korea#holiday@group.v.calendar.google.com'
+    ];
+
     let tokenClient;
     let gapiInited = false;
 
-    async function gapiLoaded() {
-        try {
-            await gapi.load('client', async () => {
+    // 스크립트 로드 상태를 강제로 체크하는 타이머
+    const checkInterval = setInterval(() => {
+        if (typeof gapi !== 'undefined' && !gapiInited) {
+            gapi.load('client', async () => {
                 await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
                 gapiInited = true;
                 document.getElementById('gapi_status').innerHTML = '<span class="success">✅ 연결 완료</span>';
                 checkReady();
             });
-        } catch (e) {
-            document.getElementById('gapi_status').innerHTML = '<span class="error">❌ 실패 (API키 확인 필요)</span>';
         }
-    }
-
-    function gisLoaded() {
-        try {
+        if (typeof google !== 'undefined' && google.accounts && !tokenClient) {
             tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/calendar.readonly',
-                callback: '',
+                client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: '',
             });
             document.getElementById('gis_status').innerHTML = '<span class="success">✅ 연결 완료</span>';
             checkReady();
-        } catch (e) {
-            document.getElementById('gis_status').innerHTML = '<span class="error">❌ 실패 (클라이언트ID 확인 필요)</span>';
         }
-    }
+    }, 1000);
 
     function checkReady() {
         if (gapiInited && tokenClient) {
+            clearInterval(checkInterval);
             const btn = document.getElementById('auth_button');
             btn.innerText = '로그인';
             btn.disabled = false;
@@ -78,20 +74,33 @@
 
     function handleAuthClick() {
         tokenClient.callback = async (resp) => {
-            if (resp.error) {
-                alert("로그인 오류: " + resp.error);
-                return;
-            }
+            if (resp.error) return;
+            document.getElementById('auth_button').innerText = '동기화 완료';
             await listUpcomingEvents();
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
 
     async function listUpcomingEvents() {
-        // (이전과 동일한 일정 불러오기 로직)
-        document.getElementById('content').innerText = "일정을 불러오는 중입니다...";
-        // ... (생략된 로직은 실행 시 포함됨)
+        let allEvents = [];
+        for (const id of CALENDAR_IDS) {
+            try {
+                const response = await gapi.client.calendar.events.list({
+                    'calendarId': id, 'timeMin': (new Date()).toISOString(), 'showDeleted': false, 'singleEvents': true, 'maxResults': 5, 'orderBy': 'startTime'
+                });
+                if (response.result.items) allEvents = allEvents.concat(response.result.items);
+            } catch(e) {}
+        }
+        allEvents.sort((a, b) => new Date(a.start.dateTime || a.start.date) - new Date(b.start.dateTime || b.start.date));
+        document.getElementById('content').innerHTML = allEvents.map(event => `
+            <div style="background:#FFFDE7; border-left:5px solid #FBC02D; padding:10px; margin-bottom:8px; border-radius:8px; text-align:left;">
+                <div style="font-size:11px; color:#795548;">${new Date(event.start.dateTime || event.start.date).toLocaleString('ko-KR', {hour:'2-digit', minute:'2-digit'})}</div>
+                <div style="font-size:13px; color:#3E2723; font-weight:500;">${event.summary}</div>
+            </div>
+        `).join('') || '일정이 없습니다.';
     }
 </script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
 </body>
 </html>
