@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Yellow Work Calendar - Final Fix</title>
+    <title>Yellow Work Dashboard - Final</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --main-yellow: #FBC02D; --soft-yellow: #FFF9C4; --bg-yellow: #FFFDE7; }
@@ -44,38 +44,65 @@
     let tokenClient;
     let gapiInited = false;
 
-    // 스크립트 로드 상태를 강제로 체크하는 타이머
-    const checkInterval = setInterval(() => {
-        if (typeof gapi !== 'undefined' && !gapiInited) {
-            gapi.load('client', async () => {
-                await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
-                gapiInited = true;
-                document.getElementById('gapi_status').innerHTML = '<span class="success">✅ 연결 완료</span>';
-                checkReady();
-            });
+    // 엔진 상태를 강제로 업데이트하는 함수
+    function updateStatus(id, text, isSuccess, errorMsg = '') {
+        const el = document.getElementById(id);
+        if (isSuccess) {
+            el.innerHTML = '<span class="success">✅ 연결 완료</span>';
+        } else {
+            el.innerHTML = `<span class="error">❌ ${text}</span> <small>${errorMsg}</small>`;
         }
-        if (typeof google !== 'undefined' && google.accounts && !tokenClient) {
+        checkReady();
+    }
+
+    // GAPI 로드 및 초기화
+    async function initGapi() {
+        try {
+            await new Promise((resolve) => gapi.load('client', resolve));
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
+            });
+            gapiInited = true;
+            updateStatus('gapi_status', '', true);
+        } catch (e) {
+            updateStatus('gapi_status', '실패', false, e.message || '네트워크 차단 의심');
+        }
+    }
+
+    // GIS 로드 및 초기화
+    function initGis() {
+        try {
             tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: '',
+                client_id: CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/calendar.readonly',
+                callback: '', 
             });
-            document.getElementById('gis_status').innerHTML = '<span class="success">✅ 연결 완료</span>';
-            checkReady();
+            updateStatus('gis_status', '', true);
+        } catch (e) {
+            updateStatus('gis_status', '실패', false);
         }
-    }, 1000);
+    }
 
     function checkReady() {
         if (gapiInited && tokenClient) {
-            clearInterval(checkInterval);
             const btn = document.getElementById('auth_button');
             btn.innerText = '로그인';
             btn.disabled = false;
         }
     }
 
+    // 스크립트가 로드되었는지 감시
+    const timer = setInterval(() => {
+        if (window.gapi && !gapiInited) initGapi();
+        if (window.google && window.google.accounts && !tokenClient) initGis();
+        if (gapiInited && tokenClient) clearInterval(timer);
+    }, 1000);
+
     function handleAuthClick() {
         tokenClient.callback = async (resp) => {
             if (resp.error) return;
-            document.getElementById('auth_button').innerText = '동기화 완료';
+            document.getElementById('auth_button').innerText = '동기화 중...';
             await listUpcomingEvents();
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
@@ -98,9 +125,11 @@
                 <div style="font-size:13px; color:#3E2723; font-weight:500;">${event.summary}</div>
             </div>
         `).join('') || '일정이 없습니다.';
+        document.getElementById('auth_button').innerText = '동기화 완료';
     }
 </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
+
