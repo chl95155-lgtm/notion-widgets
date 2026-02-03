@@ -109,13 +109,14 @@
     
     /* 3개 캘린더 ID 및 색상 설정 */
     const CALENDAR_CONFIG = [
-        { id: 'chl95155@gmail.com', color: '#efbbff' }, // 개인 (연노랑)
-        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#FFF2CC' }, // 프로젝트 A (연하늘)
-        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#C4E6C7' } // 프로젝트 B (연그린)
+        { id: 'chl95155@gmail.com', color: '#efbbff' }, 
+        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff' }, 
+        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea' }
     ];
 
     let calendar;
     let tokenClient;
+    let refreshTimer; // 실시간 업데이트를 위한 타이머 변수
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
@@ -151,8 +152,21 @@
     function handleAuthClick() {
         tokenClient.callback = async (resp) => {
             if (resp.error) return;
-            document.getElementById('auth_button').innerText = '동기화 완료';
+            const btn = document.getElementById('auth_button');
+            
+            // 1. 즉시 동기화 실행
             await loadAllEvents();
+            btn.innerText = '동기화 완료';
+
+            // 2. 10분마다 실시간 자동 업데이트 시작 (600,000ms)
+            if (refreshTimer) clearInterval(refreshTimer); // 중복 실행 방지
+            refreshTimer = setInterval(async () => {
+                await loadAllEvents();
+                const now = new Date();
+                const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                btn.innerText = `최근 업데이트: ${timeStr}`;
+                console.log(`[${timeStr}] 실시간 일정 동기화 완료`);
+            }, 10 * 60 * 1000);
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
