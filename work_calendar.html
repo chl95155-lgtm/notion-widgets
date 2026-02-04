@@ -148,13 +148,12 @@
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
-    // 주신 iframe 소스에서 추출한 정확한 ID 구성
+    /* 최신 iframe 주소에서 추출한 정확한 ID 리스트 */
     const CALENDAR_CONFIG = [
-        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
-        { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
-        // 프로젝트 1 (iCAL 주소의 'l' 포함 버전으로 수정됨)
-        { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#FFF2CC', priority: 2 }, 
-        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#E0F2F1', priority: 2 }
+        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, // 공휴일
+        { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, // 개인
+        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#f6bf26', priority: 2 }, // 프로젝트 1 (노랑)
+        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#68c7c1', priority: 2 } // 프로젝트 2 (민트)
     ];
 
     let calendar;
@@ -234,6 +233,7 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
+
 
 
 
