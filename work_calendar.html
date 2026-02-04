@@ -38,7 +38,7 @@
     const CALENDAR_CONFIG = [
         { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
         { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
-        // 프로젝트 1: 'l'이 정확히 포함된 ID입니다.
+        // ⭐ 철자 'l'을 추가한 정확한 프로젝트 1 ID입니다!
         { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff', priority: 2 }, 
         { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea', priority: 2 }
     ];
@@ -48,8 +48,7 @@
     let holidayDates = new Set();
 
     document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar');
-        calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'dayGridMonth', locale: 'ko', showNonCurrentDates: false, fixedWeekCount: false,
             headerToolbar: { left: 'today prev,next', center: 'title', right: '' },
             height: 'auto', dayMaxEvents: 3, eventOrder: 'priority',
