@@ -5,7 +5,6 @@
     <title>Yellow Grid Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
-        /* ... (기본 스타일은 이전과 동일) ... */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
         :root { --calendar-border: #FBC02D; --data-font: #3E2723; --bg-yellow: #FFFDE7; --header-brown: #5D4037; --holiday-red: #D32F2F; }
         body { background: transparent; font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 5px; }
@@ -13,23 +12,16 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border-bottom: 2px solid var(--bg-yellow); padding-bottom: 8px; }
         .header h2 { margin: 0; font-size: 18px; color: var(--header-brown); }
         .btn-auth { background: var(--calendar-border); color: white; border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .fc-header-toolbar { display: flex !important; align-items: center; margin-top: 5px !important; margin-bottom: 10px !important; }
-        .fc-toolbar-chunk { flex: 1; display: flex; }
-        .fc-toolbar-chunk:nth-child(1) { justify-content: flex-start; }
-        .fc-toolbar-chunk:nth-child(2) { justify-content: center; }
-        .fc-toolbar-chunk:nth-child(3) { justify-content: flex-end; }
         .fc-toolbar-title { font-size: 1.6em !important; color: var(--header-brown); font-weight: 700; }
         .fc-day-today { background: none !important; }
         .fc-daygrid-day-top { display: flex; justify-content: flex-start; padding-left: 5px; }
         .fc-day-today .fc-daygrid-day-number { background-color: var(--calendar-border) !important; color: white !important; border-radius: 50%; width: 26px; height: 26px; display: flex !important; align-items: center; justify-content: center; margin-top: 4px !important; }
         .fc-day-sun .fc-daygrid-day-number, .is-holiday .fc-daygrid-day-number { color: var(--holiday-red) !important; }
         .fc-day-sat .fc-daygrid-day-number { color: #1976D2 !important; }
-        #calendar { height: 600px; background: white; }
+        #calendar { height: 400px; background: white; }
         .fc-event { cursor: pointer; padding: 3px 6px !important; border-radius: 4px !important; border: none !important; margin: 1px 2px !important; display: block !important; }
-        .fc-event-title, .fc-event-time { color: var(--data-font) !important; font-weight: 600 !important; font-size: 11px !important; }
-        .fc-daygrid-day-number { color: var(--header-brown) !important; text-decoration: none !important; font-weight: 500; font-size: 13px; padding: 4px 4px; }
-        .fc-col-header-cell-cushion { color: var(--header-brown) !important; text-decoration: none !important; padding: 5px 0 !important; display: block; }
-        .fc-button-primary { background-color: var(--calendar-border) !important; border: none !important; padding: 3px 6px !important; font-size: 12px !important; }
+        .fc-event-title { color: var(--data-font) !important; font-weight: 600 !important; font-size: 11px !important; }
+        .fc-daygrid-day-number { color: var(--header-brown) !important; font-weight: 500; font-size: 13px; padding: 4px 4px; }
     </style>
 </head>
 <body>
@@ -48,7 +40,7 @@
     const CALENDAR_CONFIG = [
         { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
         { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
-        // 청아님이 주신 주소에서 추출한 정확한 ID
+        // 드디어 수정된 ID (gaspb'l'cms) - 스크린샷 에러의 주범!
         { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff', priority: 2 }, 
         { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea', priority: 2 }
     ];
@@ -84,20 +76,24 @@
 
     function gisLoaded() {
         tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID, scope: 'https://www.googleapis.com/auth/calendar.readonly', callback: '', 
+            client_id: CLIENT_ID, 
+            scope: 'https://www.googleapis.com/auth/calendar.readonly', 
+            ux_mode: 'popup', // 'redirect'로 바꾸면 팝업 차단을 피할 수 있지만 노션에선 팝업이 낫습니다.
+            callback: async (resp) => {
+                if (resp.error) return;
+                await loadAllEvents();
+                document.getElementById('auth_button').innerText = '동기화 완료';
+            }, 
         });
     }
 
     function handleAuthClick() {
-        tokenClient.callback = async (resp) => {
-            if (resp.error) {
-                alert("인증 에러: " + resp.error);
-                return;
-            }
-            await loadAllEvents();
-            document.getElementById('auth_button').innerText = '동기화 완료';
-        };
-        tokenClient.requestAccessToken({prompt: 'consent'});
+        // 팝업이 차단되는 에러 해결을 위해 명시적으로 요청
+        try {
+            tokenClient.requestAccessToken({prompt: 'consent'});
+        } catch (e) {
+            alert("로그인 창을 열 수 없습니다. 브라우저의 팝업 차단을 해제해 주세요!");
+        }
     }
 
     async function loadAllEvents() {
@@ -107,7 +103,7 @@
             try {
                 const response = await gapi.client.calendar.events.list({
                     'calendarId': config.id,
-                    'timeMin': (new Date(new Date().getFullYear(), 0, 1)).toISOString(),
+                    'timeMin': (new Date(2026, 0, 1)).toISOString(),
                     'singleEvents': true
                 });
                 const events = response.result.items.map(item => {
@@ -118,11 +114,7 @@
                 });
                 calendar.addEventSource(events);
             } catch (err) {
-                console.error(config.id + " 에러 상세:", err);
-                // 특정 캘린더가 404라면 경고창을 띄워 진짜 이유를 알려줌
-                if (err.status === 404) {
-                    alert(`${config.id}를 찾을 수 없습니다. (ID 오타 혹은 공개설정 확인 필요)`);
-                }
+                console.error(config.id + " 에러:", err);
             }
         }
         calendar.render();
