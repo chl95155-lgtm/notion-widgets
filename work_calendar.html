@@ -40,7 +40,7 @@
         /* 3. 공휴일/일요일 날짜 숫자 '적색' 표기 */
         .fc-day-sun .fc-daygrid-day-number, .is-holiday .fc-daygrid-day-number { color: var(--holiday-red) !important; }
 
-        #calendar { height: 600px; background: white; }
+        #calendar { height: 400px; background: white; }
 
         /* 4. 모든 일정을 꽉 찬 바(Bar) 형태로 표시 */
         .fc-event { cursor: pointer; padding: 3px 6px !important; border-radius: 4px !important; border: none !important; margin: 1px 2px !important; display: block !important; }
@@ -60,8 +60,6 @@
 <script>
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
-    
-    // 최종 확인된 정확한 ID 리스트 (오타 'l' 수정 완료)
     const CALENDAR_CONFIG = [
         { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
         { id: 'chl95155@gmail.com', color: '#8e24aa', priority: 2 }, 
@@ -138,3 +136,4 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
+
