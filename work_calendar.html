@@ -19,7 +19,7 @@
         .fc-day-sun .fc-daygrid-day-number, .is-holiday .fc-daygrid-day-number { color: var(--holiday-red) !important; }
         #calendar { height: 600px; background: white; }
         .fc-event { cursor: pointer; padding: 3px 6px !important; border-radius: 4px !important; border: none !important; margin: 1px 2px !important; display: block !important; }
-        .fc-event-title { color: var(--data-font) !important; font-weight: 600 !important; font-size: 11px !important; }
+        .fc-event-title, .fc-event-time { color: var(--data-font) !important; font-weight: 600 !important; font-size: 11px !important; }
     </style>
 </head>
 <body>
@@ -38,13 +38,14 @@
     const CALENDAR_CONFIG = [
         { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
         { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
-        // ⭐ 철자 'l'을 추가한 정확한 프로젝트 1 ID입니다!
+        // ⭐ 정확한 ID 반영: gasp'l'cms
         { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#e0d6ff', priority: 2 }, 
         { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#e8f4ea', priority: 2 }
     ];
 
     let calendar;
     let tokenClient;
+    let refreshTimer;
     let holidayDates = new Set();
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -82,6 +83,13 @@
             if (resp.error) return;
             await loadAllEvents();
             document.getElementById('auth_button').innerText = '동기화 완료';
+
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = setInterval(async () => {
+                await loadAllEvents();
+                const now = new Date();
+                document.getElementById('auth_button').innerText = `업데이트: ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            }, 10 * 60 * 1000);
         };
         tokenClient.requestAccessToken({prompt: 'consent'});
     }
@@ -94,7 +102,8 @@
                 const response = await gapi.client.calendar.events.list({
                     'calendarId': config.id,
                     'timeMin': (new Date(2026, 0, 1)).toISOString(),
-                    'singleEvents': true
+                    'singleEvents': true,
+                    'orderBy': 'startTime'
                 });
                 const events = response.result.items.map(item => {
                     const startStr = item.start.dateTime || item.start.date;
@@ -112,4 +121,5 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
+
 
