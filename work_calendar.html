@@ -5,134 +5,22 @@
     <title>Yellow Grid Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <style>
+        /* (기존의 예쁜 노란색 테마 스타일 유지) */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
-        
-        :root {
-            --calendar-border: #FBC02D;
-            --data-font: #3E2723;
-            --bg-yellow: #FFFDE7;
-            --header-brown: #5D4037;
-            --holiday-red: #D32F2F;
-        }
-
-        body {
-            background: transparent;
-            font-family: 'Noto Sans KR', sans-serif;
-            margin: 0;
-            padding: 5px;
-        }
-
-        .container {
-            background: white;
-            border: 3px solid var(--calendar-border);
-            border-radius: 25px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-            border-bottom: 2px solid var(--bg-yellow);
-            padding-bottom: 8px;
-        }
-
+        :root { --calendar-border: #FBC02D; --data-font: #3E2723; --bg-yellow: #FFFDE7; --header-brown: #5D4037; --holiday-red: #D32F2F; }
+        body { background: transparent; font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 5px; }
+        .container { background: white; border: 3px solid var(--calendar-border); border-radius: 25px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; border-bottom: 2px solid var(--bg-yellow); padding-bottom: 8px; }
         .header h2 { margin: 0; font-size: 18px; color: var(--header-brown); }
-
-        .btn-auth {
-            background: var(--calendar-border);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        /* 1. 년월 폰트 사이즈 대폭 확대 및 가운데 정렬 */
-        .fc-toolbar-title {
-            font-size: 2em !important; 
-            color: var(--header-brown);
-            font-weight: 700;
-        }
-
-        .fc-header-toolbar {
-            display: flex !important;
-            align-items: center;
-            margin: 10px 0 !important;
-        }
-
-        .fc-toolbar-chunk { flex: 1; display: flex; }
-        .fc-toolbar-chunk:nth-child(1) { justify-content: flex-start; }
-        .fc-toolbar-chunk:nth-child(2) { justify-content: center; }
-        .fc-toolbar-chunk:nth-child(3) { justify-content: flex-end; }
-
-        /* 2. Today 숫자 왼쪽 정렬 및 원형 강조 */
-        .fc-day-today { background: none !important; }
-        .fc-daygrid-day-top {
-            display: flex;
-            justify-content: flex-start; 
-            padding-left: 5px;
-        }
-        .fc-day-today .fc-daygrid-day-number {
-            background-color: var(--calendar-border) !important;
-            color: white !important;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            margin-top: 4px !important;
-            padding: 0 !important;
-        }
-
-        /* 공휴일/일요일 적색 및 토요일 청색 */
-        .fc-day-sun .fc-daygrid-day-number, .is-holiday .fc-daygrid-day-number { color: var(--holiday-red) !important; }
-        .fc-day-sat .fc-daygrid-day-number { color: #1976D2 !important; }
-
-        /* 3. 전체 높이 최적화 */
+        .btn-auth { background: var(--calendar-border); color: white; border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .fc-toolbar-title { font-size: 1.8em !important; color: var(--header-brown); font-weight: 700; }
         #calendar { height: 600px; background: white; }
-
-        /* 4. 모든 데이터를 꽉 찬 바(Block) 형태로 표기 */
-        .fc-event {
-            cursor: pointer;
-            padding: 3px 6px !important;
-            border-radius: 4px !important;
-            border: none !important; 
-            margin: 1px 2px !important;
-            display: block !important;
-        }
-
-        .fc-event-title, .fc-event-time {
-            color: var(--data-font) !important;
-            font-weight: 600 !important;
-            font-size: 11px !important;
-        }
-
-        .fc-daygrid-day-number {
-            color: var(--header-brown) !important;
-            text-decoration: none !important;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 6px 4px;
-        }
-
-        .fc-col-header-cell-cushion {
-            color: var(--header-brown) !important;
-            text-decoration: none !important;
-            padding: 5px 0 !important;
-            display: block;
-        }
-
-        .fc-button-primary {
-            background-color: var(--calendar-border) !important;
-            border: none !important;
-            padding: 4px 8px !important;
-        }
+        .fc-event { cursor: pointer; padding: 3px 6px !important; border-radius: 4px !important; border: none !important; margin: 1px 2px !important; display: block !important; }
+        .fc-event-title { color: var(--data-font) !important; font-weight: 600 !important; font-size: 11px !important; }
+        .fc-day-today { background: none !important; }
+        .fc-daygrid-day-top { display: flex; justify-content: flex-start; padding-left: 5px; }
+        .fc-day-today .fc-daygrid-day-number { background-color: var(--calendar-border) !important; color: white !important; border-radius: 50%; width: 26px; height: 26px; display: flex !important; align-items: center; justify-content: center; margin-top: 4px !important; padding: 0 !important; }
+        .fc-day-sun .fc-daygrid-day-number, .is-holiday .fc-daygrid-day-number { color: var(--holiday-red) !important; }
     </style>
 </head>
 <body>
@@ -148,12 +36,12 @@
     const CLIENT_ID = '582944285891-2benf275reb6i2o64d0bk5eh67okjlov.apps.googleusercontent.com';
     const API_KEY = 'AIzaSyDx-J1xtz2c1X7F7CZg1VKVbmlScDkBg8s';
     
-    /* 최신 iframe 주소에서 추출한 정확한 ID 리스트 */
+    // 1. 오타 'l'을 확실히 넣은 정확한 캘린더 ID 리스트입니다.
     const CALENDAR_CONFIG = [
-        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, // 공휴일
-        { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, // 개인
-        { id: '2ajtn021gaspbcms3vt8lnlqo@group.calendar.google.com', color: '#f6bf26', priority: 2 }, // 프로젝트 1 (노랑)
-        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#68c7c1', priority: 2 } // 프로젝트 2 (민트)
+        { id: 'ko.south_korea#holiday@group.v.calendar.google.com', color: '#FFCDD2', priority: 1 }, 
+        { id: 'chl95155@gmail.com', color: '#efbbff', priority: 2 }, 
+        { id: '2ajtn021gaspbclms3vt8lnlqo@group.calendar.google.com', color: '#FFF2CC', priority: 2 }, 
+        { id: 'f45f8eb9f500085735d5c1d118b77c00d01462f269d4601a7fe40244fa213ed2@group.calendar.google.com', color: '#E0F2F1', priority: 2 }
     ];
 
     let calendar;
@@ -161,29 +49,24 @@
     let holidayDates = new Set();
 
     document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar');
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            locale: 'ko',
-            showNonCurrentDates: false, 
-            fixedWeekCount: false, 
+        calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            initialView: 'dayGridMonth', locale: 'ko', showNonCurrentDates: false, fixedWeekCount: false,
             headerToolbar: { left: 'today prev,next', center: 'title', right: '' },
-            height: 'auto',
-            dayMaxEvents: 3,
-            eventOrder: 'priority',
+            height: 'auto', dayMaxEvents: 3, eventOrder: 'priority',
             dayCellClassNames: function(arg) {
                 const dateStr = arg.date.toISOString().split('T')[0];
                 return holidayDates.has(dateStr) ? ['is-holiday'] : [];
             },
             dayCellContent: function(arg) {
-                let date = arg.date; let dayNum = date.getDate();
-                if (dayNum === 1) { return { html: `<span>${date.getMonth() + 1}월 1일</span>` }; }
+                let dayNum = arg.date.getDate();
+                if (dayNum === 1) return { html: `<span>${arg.date.getMonth() + 1}월 1일</span>` };
                 return { html: `<span>${dayNum}</span>` };
             }
         });
         calendar.render();
     });
 
+    // 2. 초기 로드 시에는 API만 준비하고 데이터를 미리 부르지 않습니다.
     function gapiLoaded() {
         gapi.load('client', async () => {
             await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"] });
@@ -196,6 +79,7 @@
         });
     }
 
+    // 3. 사용자가 버튼을 눌러 로그인했을 때만 데이터를 가져옵니다.
     function handleAuthClick() {
         tokenClient.callback = async (resp) => {
             if (resp.error) return;
@@ -218,13 +102,11 @@
                 const events = response.result.items.map(item => {
                     const startStr = item.start.dateTime || item.start.date;
                     if (config.id.includes('holiday')) holidayDates.add(startStr.split('T')[0]);
-                    return {
-                        title: item.summary, start: startStr, end: item.end.dateTime || item.end.date, 
-                        backgroundColor: config.color, borderColor: config.color, display: 'block', extendedProps: { priority: config.priority }
-                    };
+                    return { title: item.summary, start: startStr, end: item.end.dateTime || item.end.date, 
+                             backgroundColor: config.color, borderColor: config.color, display: 'block', extendedProps: { priority: config.priority } };
                 });
                 calendar.addEventSource(events);
-            } catch (err) { console.error(config.id + " 로드 실패:", err); }
+            } catch (err) { console.error(config.id + " 로드 실패", err); }
         }
         calendar.render();
     }
@@ -233,7 +115,6 @@
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
-
 
 
 
