@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --main-yellow: #FBC02D;   /* 포인트 노란색 */
+            --bg-cream: #FFFDE7;      /* 눈이 편안한 크림색 */
+            --grid-line: #FFF59D;     /* 격자 테두리 (연노랑) */
+            --text-brown: #5D4037;    /* 가독성 높은 브라운 */
+            --holiday-red: #D32F2F;   /* 공휴일/일요일 적색 */
+            --bg-white: #ffffff;
+        }
+
+        body {
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        /* 라운드 스퀘어 카드 */
+        .calendar-card {
+            background-color: var(--bg-white);
+            border: 3px solid var(--main-yellow);
+            border-radius: 25px;
+            padding: 20px;
+            width: 240px; /* 요일 표기가 길어져 가로 폭을 살짝 넓혔습니다 */
+            box-shadow: 0 10px 25px rgba(251, 192, 45, 0.15);
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .month-name {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--main-yellow);
+            display: block;
+        }
+
+        .year-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-brown);
+            opacity: 0.8;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* 격자 그리드 설정 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-top: 1px solid var(--grid-line);
+            border-left: 1px solid var(--grid-line);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .day-label, .date-cell {
+            text-align: center;
+            font-size: 11px; /* 폰트 크기를 살짝 조정하여 균형을 맞췄습니다 */
+            color: var(--text-brown);
+            border-right: 1px solid var(--grid-line);
+            border-bottom: 1px solid var(--grid-line);
+        }
+
+        /* 요일 상단 바 */
+        .day-label {
+            padding: 10px 0;
+            font-weight: 700;
+            background-color: var(--bg-cream);
+        }
+
+        .date-cell {
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        /* 주말 및 공휴일 색상 */
+        .is-holiday, .sun {
+            color: var(--holiday-red) !important;
+        }
+        .sat {
+            color: #1976D2;
+        }
+
+        .other-month {
+            color: #E0E0E0;
+        }
+
+        /* 오늘 날짜 강조 스티커 */
+        .today {
+            background-color: var(--main-yellow);
+            color: var(--text-brown);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(251, 192, 45, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="calendar-card">
+    <div class="calendar-header">
+        <span class="month-name" id="displayMonth"></span>
+        <span class="year-name" id="displayYear"></span>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+        <div class="day-label sun">Sun</div>
+        <div class="day-label">Mon</div>
+        <div class="day-label">Tue</div>
+        <div class="day-label">Wed</div>
+        <div class="day-label">Thu</div>
+        <div class="day-label">Fri</div>
+        <div class="day-label sat">Sat</div>
+    </div>
+</div>
+
+<script>
+    // 2026년 대한민국 공휴일 데이터
+    const holidays2026 = {
+        0: [1], 1: [16, 17, 18], 2: [1], 4: [5, 24], 5: [6], 7: [15], 8: [24, 25, 26], 9: [3, 9], 11: [25]
+    };
+
+    function generateCalendar() {
+        const now = new Date(); // 현재 시간: 2026년 2월 5일 기준 작동
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const today = now.getDate();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('displayMonth').textContent = monthNames[month];
+        document.getElementById('displayYear').textContent = year;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevDaysInMonth = new Date(year, month, 0).getDate();
+        const grid = document.getElementById('calendarGrid');
+
+        // 이전 달 날짜 채우기
+        for (let i = firstDay - 1; i >= 0; i--) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell other-month';
+            cell.textContent = prevDaysInMonth - i;
+            grid.appendChild(cell);
+        }
+
+        // 이번 달 날짜 채우기
+        for (let i = 1; i <= daysInMonth; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell';
+            const dayOfWeek = new Date(year, month, i).getDay();
+            const isHoliday = holidays2026[month] && holidays2026[month].includes(i);
+
+            if (i === today) {
+                const span = document.createElement('span');
+                span.className = 'today';
+                span.textContent = i;
+                cell.appendChild(span);
+            } else {
+                cell.textContent = i;
+                if (dayOfWeek === 0 || isHoliday) cell.classList.add('is-holiday');
+                if (dayOfWeek === 6) cell.classList.add('sat');
+            }
+            grid.appendChild(cell);
+        }
+    }
+    generateCalendar();
+</script>
+</body>
+</html>
