@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <style>
-        /* 깔끔한 영문 폰트 적용 */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
 
         body {
@@ -19,47 +17,44 @@
 
         .clock {
             display: flex;
-            gap: 10px; /* 가독성을 위해 간격을 8px에서 10px로 미세하게 조정 */
+            gap: 4px; /* 간격을 살짝 넓혀 가독성 향상 */
             perspective: 1000px;
         }
 
         .flip-unit {
             position: relative;
-            /* 1. 가로는 120px에서 115px로 조금만 줄임 */
-            width: 115px; 
-            /* 2. 세로는 200px에서 300px로 대폭 늘림 */
-            height: 300px; 
+            width: 130px; 
+            height: 200px; 
             background-color: #fff2cc;
             border-radius: 20px;
-            /* 3. 늘어난 길이에 맞춰 폰트와 수직 정렬 조정 */
-            font-size: 100px; 
-            line-height: 300px; 
+            font-size: 95px;
+            line-height: 200px;
             text-align: center;
             color: #ff9d17;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* 부드러운 그림자 */
         }
 
-        /* 플립 시계 특유의 중앙 구분선 */
+        /* 중앙 구분선 수정 포인트 */
         .flip-unit::before {
             content: '';
             position: absolute;
             top: 50%;
             left: 0;
             width: 100%;
-            height: 3px; /* 시인성을 위해 2px에서 3px로 보정 */
-            background: rgba(255, 255, 255, 0.4); /* 조금 더 선명하게 */
-            z-index: 5;
+            height: 3px; 
+            background: rgba(255, 255, 255, 0.6); 
+            z-index: 10;
             transform: translateY(-50%);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        /* 숫자가 바뀔 때 실행될 애니메이션 */
         .flip-animate {
             animation: flipDown 0.6s ease-in-out;
         }
 
         @keyframes flipDown {
             0% { transform: rotateX(0deg); }
-            50% { transform: rotateX(-90deg); filter: brightness(1.2); }
+            50% { transform: rotateX(-90deg); filter: brightness(1.1); }
             100% { transform: rotateX(0deg); }
         }
     </style>
