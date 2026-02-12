@@ -6,8 +6,12 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            --main-pink: #E9A6C0;
-            --border-color: #FADADD;
+            --main-pink: #F06292;      /* 메인 진한 핑크 (월 이름, 오늘 날짜) */
+            --soft-pink: #FCE4EC;      /* 연한 핑크 (요일 배경, 격자 테두리) */
+            --bg-pink: #FFF1F5;        /* 아주 연한 배경 핑크 */
+            --text-dark: #880E4F;      /* 텍스트용 진한 자주색 (가독성 확보) */
+            --sun-red: #E91E63;        /* 일요일/공휴일용 핑크빛 레드 */
+            --sat-blue: #448AFF;       /* 토요일용 산뜻한 블루 */
             --bg-white: #ffffff;
         }
 
@@ -21,80 +25,94 @@
             font-family: 'Pretendard', sans-serif;
         }
 
-        /* 라운드 스퀘어 테두리 설정 */
+        /* 🌸 라운드 스퀘어 카드 디자인 강화 */
         .calendar-card {
             background-color: var(--bg-white);
-            border: 2px solid var(--border-color); /* 핑크색 외곽 테두리 */
-            border-radius: 25px; /* 라운드 스퀘어 효과 */
+            border: 3px solid var(--main-pink); /* 테두리를 조금 더 두껍게 */
+            border-radius: 30px;
             padding: 20px;
-            width: 220px;
-            box-shadow: 0 10px 25px rgba(233, 166, 192, 0.1);
+            width: 230px;
+            box-shadow: 0 10px 30px rgba(240, 98, 146, 0.2);
         }
 
         .calendar-header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed var(--soft-pink);
         }
 
         .month-name {
-            font-size: 26px;
-            font-weight: 800;
+            font-size: 28px;
+            font-weight: 900;
             color: var(--main-pink);
             display: block;
+            letter-spacing: -1px;
         }
 
         .year-name {
-            font-size: 16px;
-            font-weight: 400;
-            color: var(--main-pink);
-            opacity: 0.7;
-            margin-top: 2px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            opacity: 0.5;
             display: block;
         }
 
+        /* 🌸 격자 테두리를 핑크색으로 변경 */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            border-top: 1px solid var(--border-color);
-            border-left: 1px solid var(--border-color);
+            border-top: 1px solid var(--soft-pink);
+            border-left: 1px solid var(--soft-pink);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .day-label, .date-cell {
             text-align: center;
-            border-right: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--soft-pink);
+            border-bottom: 1px solid var(--soft-pink);
             font-size: 12px;
-            color: #D191AB;
+            color: var(--text-dark);
         }
 
         .day-label {
             padding: 10px 0;
-            font-weight: 600;
-            background-color: #FFF5F7;
+            font-weight: 800;
+            background-color: var(--bg-pink); /* 요일 바 배경도 핑크 */
         }
 
+        .sun { color: var(--sun-red) !important; }
+        .sat { color: var(--sat-blue) !important; }
+
         .date-cell {
-            height: 30px;
+            height: 38px;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-weight: 600;
         }
 
         .other-month {
-            color: #F2D1DC;
+            color: #F8BBD0 !important; /* 이전/다음달은 연한 핑크회색 */
         }
 
-        /* 오늘 날짜 강조 */
+        .holiday {
+            color: var(--sun-red) !important;
+        }
+
+        /* 🌸 오늘 날짜 강조 (진한 핑크 원) */
         .today {
             background-color: var(--main-pink);
-            color: white;
-            width: 20px;
-            height: 20px;
+            color: white !important;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
+            font-weight: 800;
+            box-shadow: 0 4px 8px rgba(240, 98, 146, 0.4);
         }
     </style>
 </head>
@@ -102,18 +120,28 @@
 
 <div class="calendar-card">
     <div class="calendar-header">
-        <span class="month-name" id="displayMonth">January</span>
-        <span class="year-name" id="displayYear">2026</span>
+        <span class="month-name" id="displayMonth"></span>
+        <span class="year-name" id="displayYear"></span>
     </div>
     <div class="calendar-grid" id="calendarGrid">
-        <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
-        <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+        <div class="day-label sun">S</div>
+        <div class="day-label">M</div>
+        <div class="day-label">T</div>
+        <div class="day-label">W</div>
+        <div class="day-label">T</div>
+        <div class="day-label">F</div>
+        <div class="day-label sat">S</div>
     </div>
 </div>
 
 <script>
+    // 2026년 공휴일 데이터 적용
+    const holidays2026 = {
+        0: [1], 1: [16, 17, 18], 2: [1], 4: [5, 24], 5: [6], 7: [15], 8: [24, 25, 26], 9: [3, 9], 11: [25]
+    };
+
     function generateCalendar() {
-        const now = new Date(); // 현재 시간
+        const now = new Date(); // 현재 날짜: 2026년 2월 12일 기준 작동
         const year = now.getFullYear();
         const month = now.getMonth();
         const today = now.getDate();
@@ -125,10 +153,8 @@
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const prevDaysInMonth = new Date(year, month, 0).getDate();
-
         const grid = document.getElementById('calendarGrid');
 
-        // 이전 달 날짜
         for (let i = firstDay - 1; i >= 0; i--) {
             const cell = document.createElement('div');
             cell.className = 'date-cell other-month';
@@ -136,10 +162,19 @@
             grid.appendChild(cell);
         }
 
-        // 현재 달 날짜
         for (let i = 1; i <= daysInMonth; i++) {
             const cell = document.createElement('div');
             cell.className = 'date-cell';
+            const dateObj = new Date(year, month, i);
+            const dayOfWeek = dateObj.getDay();
+            const isHoliday = holidays2026[month] && holidays2026[month].includes(i);
+
+            if (dayOfWeek === 0 || isHoliday) {
+                cell.classList.add('holiday');
+            } else if (dayOfWeek === 6) {
+                cell.classList.add('sat');
+            }
+
             if (i === today) {
                 const span = document.createElement('span');
                 span.className = 'today';
