@@ -57,7 +57,7 @@
     }
 
     async function getFortune() {
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv';
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJt4nYJdDup0o50_TUEeOAK4jKs9mPzXXd8sf-APg0BBn4BEdemk-8v1i3yXbDaIUqnPQvarfRSFVJ/pub?gid=0&single=true&output=csv';
         try {
             const res = await fetch(sheetUrl);
             const data = await res.text();
