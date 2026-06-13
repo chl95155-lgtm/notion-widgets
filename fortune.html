@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <style>
         @import url('https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv');
+        /* 🌸 원본 핑크색 컬러톤 그대로 유지 */
         :root { --main-pink: #E9A6C0; --soft-pink: #FADADD; --bg-pink: #FFF5F7; }
         body { background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif; }
         
-        /* [수정] 가로 사이즈를 450px로 키우고, 최대 너비를 100%로 설정 */
+        /* 🌸 원본 가로 450px 사이즈 및 외곽 테두리 디자인 디자인 그대로 유지 */
         .card { 
             background: white; 
             border: 2px solid var(--soft-pink); 
@@ -24,10 +25,7 @@
         
         .section { background: var(--bg-pink); border-radius: 15px; padding: 18px; margin-bottom: 12px; text-align: left; }
         
-        /* 헤더 폰트 크고 굵게 유지 */
         .label { font-size: 15px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
-        
-        /* 내용 텍스트 스타일 통일 */
         .text { font-size: 14px; color: #555; line-height: 1.6; margin: 0; word-break: keep-all; }
     </style>
 </head>
@@ -51,6 +49,11 @@
     </div>
 </div>
 <script>
+    // 🛠️ 구글 시트 날짜 형식에 구애받지 않도록 숫자만 추출하는 함수 추가
+    function cleanDate(dateStr) {
+        return dateStr.replace(/[^0-9]/g, '').trim();
+    }
+
     async function getFortune() {
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv';
         try {
@@ -64,11 +67,14 @@
                 });
             });
 
-            // 한국 시간 기준 날짜 매칭
             const offset = new Date().getTimezoneOffset() * 60000;
-            const today = new Date(Date.now() - offset).toISOString().split('T')[0];
+            const todayStr = new Date(Date.now() - offset).toISOString().split('T')[0];
             
-            const row = rows.find(r => r[0] && r[0].trim() === today);
+            // 🛠️ 코드가 생성한 오늘 날짜를 숫자 포맷(예: 20260613)으로 변경
+            const cleanedToday = cleanDate(todayStr);
+            
+            // 🛠️ 구글 시트 A열 날짜와 코드가 생성한 날짜를 숫자만 남겨서 완벽하게 대조
+            const row = rows.find(r => r[0] && cleanDate(r[0]) === cleanedToday);
 
             if (row) {
                 document.getElementById('score').textContent = (row[1] || "-") + "점";
@@ -76,7 +82,7 @@
                 document.getElementById('money').textContent = row[3] || "내용 없음";
                 document.getElementById('luck').textContent = row[4] || "내용 없음";
             } else { 
-                document.getElementById('summary').textContent = "시트에 오늘(" + today + ") 데이터를 입력해주세요!";
+                document.getElementById('summary').textContent = "시트에 오늘 날짜(" + todayStr + ")에 맞는 데이터를 입력해주세요!";
                 document.getElementById('money').textContent = "-";
                 document.getElementById('luck').textContent = "-";
             }
@@ -87,7 +93,3 @@
     }
     getFortune();
 </script>
-</body>
-</html>
-
-
