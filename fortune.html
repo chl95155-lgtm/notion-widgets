@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        @import url('https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv');
         :root { --main-pink: #E9A6C0; --soft-pink: #FADADD; --bg-pink: #FFF5F7; }
         body { background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif; }
         
@@ -21,6 +22,7 @@
         .score { background: var(--main-pink); color: white; padding: 4px 12px; border-radius: 15px; font-size: 13px; font-weight: 700; }
         
         .section { background: var(--bg-pink); border-radius: 15px; padding: 18px; margin-bottom: 12px; text-align: left; }
+        
         .label { font-size: 15px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
         .text { font-size: 14px; color: #555; line-height: 1.6; margin: 0; word-break: keep-all; }
     </style>
@@ -45,21 +47,22 @@
     </div>
 </div>
 <script>
-    // 날짜 텍스트에서 특수문자를 모두 지우고 순수 숫자만 비교하는 안전 장치
-    function cleanDate(dateStr) {
+    // 시트의 날짜 텍스트에서 순수 숫자만 추출하여 매칭률을 극대화하는 함수
+    function extractNumericDate(dateStr) {
         if (!dateStr) return '';
-        return dateStr.replace(/[^0-9]/g, '').trim();
+        // 숫자만 남기고 전후 공백 완전 제거
+        const cleaned = dateStr.replace(/[^0-9]/g, '').trim();
+        // 2026613 처럼 월/일이 한자리일 경우를 대비해 날짜를 유연하게 인식하도록 보정
+        return cleaned;
     }
 
     async function getFortune() {
-        // ⚠️ 아래 주소 영역에 [2단계]에서 복사한 주소를 넣어주세요!
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv';
-        
         try {
             const res = await fetch(sheetUrl);
             const data = await res.text();
             
-            // 줄바꿈 기호(\r) 안전하게 제거 후 파싱
+            // 윈도우 캐리지 리턴(\r) 및 불필요한 공백 제거 후 줄바꿈 파싱
             const rows = data.replace(/\r/g, '').split('\n').map(r => {
                 const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
                 return r.split(regex).map(cell => {
@@ -67,13 +70,23 @@
                 });
             });
 
-            // 오늘 날짜 생성 (YYYY-MM-DD)
-            const offset = new Date().getTimezoneOffset() * 60000;
-            const todayStr = new Date(Date.now() - offset).toISOString().split('T')[0];
-            const cleanedToday = cleanDate(todayStr); 
+            // 오늘 날짜 계산
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            
+            // 비교 대상 1: "20260613" (기본 8자리 서식)
+            const todayTarget1 = `${year}${month}${date}`;
+            // 비교 대상 2: "2026613" (시트에 0을 빼고 입력했을 경우 대비)
+            const todayTarget2 = `${year}${now.getMonth() + 1}${now.getDate()}`;
 
-            // 시트 데이터와 오늘 날짜 대조
-            const row = rows.find(r => r[0] && cleanDate(r[0]) === cleanedToday);
+            // 시트 데이터 순회하며 숫자 포맷 비교
+            const row = rows.find(r => {
+                if (!r[0]) return false;
+                const sheetDate = extractNumericDate(r[0]);
+                return sheetDate === todayTarget1 || sheetDate === todayTarget2;
+            });
 
             if (row) {
                 document.getElementById('score').textContent = (row[1] || "-") + "점";
@@ -81,13 +94,13 @@
                 document.getElementById('money').textContent = row[3] || "내용 없음";
                 document.getElementById('luck').textContent = row[4] || "내용 없음";
             } else { 
-                document.getElementById('summary').textContent = "구글 시트 A열에 오늘 날짜(" + todayStr + ") 데이터가 입력되어 있는지 확인해 주세요!";
+                document.getElementById('summary').textContent = "시트에 오늘 날짜(2026-06-13)에 맞는 행 데이터가 없거나 서식이 매칭되지 않았습니다.";
                 document.getElementById('money').textContent = "-";
                 document.getElementById('luck').textContent = "-";
             }
         } catch (e) { 
             console.error(e);
-            document.getElementById('summary').textContent = "시트 연결에 실패했습니다. 공유 설정을 다시 확인해 주세요."; 
+            document.getElementById('summary').textContent = "구글 시트 연결 오류가 발생했습니다."; 
         }
     }
     getFortune();
