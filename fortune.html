@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @import url('https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv');
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
         :root { --main-pink: #E9A6C0; --soft-pink: #FADADD; --bg-pink: #FFF5F7; }
         body { background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif; }
         
+        /* [수정] 가로 사이즈를 450px로 키우고, 최대 너비를 100%로 설정 */
         .card { 
             background: white; 
             border: 2px solid var(--soft-pink); 
@@ -23,7 +24,10 @@
         
         .section { background: var(--bg-pink); border-radius: 15px; padding: 18px; margin-bottom: 12px; text-align: left; }
         
+        /* 헤더 폰트 크고 굵게 유지 */
         .label { font-size: 15px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
+        
+        /* 내용 텍스트 스타일 통일 */
         .text { font-size: 14px; color: #555; line-height: 1.6; margin: 0; word-break: keep-all; }
     </style>
 </head>
@@ -47,35 +51,24 @@
     </div>
 </div>
 <script>
-    // 날짜 스트링에서 순수 숫자 8자리만 강제로 추출하는 함수 (예: "2026년 06월 13일" -> "20260613")
-    function cleanDate(dateStr) {
-        if (!dateStr) return '';
-        return dateStr.replace(/[^0-9]/g, '').slice(0, 8);
-    }
-
     async function getFortune() {
         const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv';
         try {
             const res = await fetch(sheetUrl);
             const data = await res.text();
             
-            // 🛠️ 보정 1: \r\n과 \n 줄바꿈을 모두 통합하여 안전하게 분리
-            const rows = data.replace(/\r/g, '').split('\n').map(r => {
+            const rows = data.split('\n').map(r => {
                 const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
                 return r.split(regex).map(cell => {
                     return cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
                 });
             });
 
+            // 한국 시간 기준 날짜 매칭
             const offset = new Date().getTimezoneOffset() * 60000;
-            const todayStr = new Date(Date.now() - offset).toISOString().split('T')[0];
-            const cleanedToday = cleanDate(todayStr); // 코드 기준 오늘 날짜 (예: "20260613")
+            const today = new Date(Date.now() - offset).toISOString().split('T')[0];
             
-            // 🛠️ 보정 2: 디버깅 콘솔 로그 추가 (F12에서 확인 가능)
-            console.log("코드 기준 오늘 날짜 숫자:", cleanedToday);
-            console.log("시트에서 받아온 행 데이터들:", rows);
-
-            const row = rows.find(r => r[0] && cleanDate(r[0]) === cleanedToday);
+            const row = rows.find(r => r[0] && r[0].trim() === today);
 
             if (row) {
                 document.getElementById('score').textContent = (row[1] || "-") + "점";
@@ -83,110 +76,13 @@
                 document.getElementById('money').textContent = row[3] || "내용 없음";
                 document.getElementById('luck').textContent = row[4] || "내용 없음";
             } else { 
-                document.getElementById('summary').textContent = "시트에서 오늘 날짜(" + todayStr + ")를 찾을 수 없습니다. 시트 첫 번째 열의 날짜를 다시 확인해 주세요!";
+                document.getElementById('summary').textContent = "시트에 오늘(" + today + ") 데이터를 입력해주세요!";
                 document.getElementById('money').textContent = "-";
                 document.getElementById('luck').textContent = "-";
             }
         } catch (e) { 
             console.error(e);
-            document.getElementById('summary').textContent = "시트 연결 오류가 발생했습니다. 웹에 제대로 게시되었는지 확인해 주세요."; 
-        }
-    }
-    getFortune();
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        @import url('https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv');
-        :root { --main-pink: #E9A6C0; --soft-pink: #FADADD; --bg-pink: #FFF5F7; }
-        body { background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif; }
-        
-        .card { 
-            background: white; 
-            border: 2px solid var(--soft-pink); 
-            border-radius: 25px; 
-            padding: 25px; 
-            width: 450px; 
-            max-width: 90%; 
-            box-shadow: 0 8px 15px rgba(0,0,0,0.05); 
-        }
-
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header h2 { font-size: 19px; color: var(--main-pink); margin: 0; font-weight: 800; }
-        .score { background: var(--main-pink); color: white; padding: 4px 12px; border-radius: 15px; font-size: 13px; font-weight: 700; }
-        
-        .section { background: var(--bg-pink); border-radius: 15px; padding: 18px; margin-bottom: 12px; text-align: left; }
-        
-        .label { font-size: 15px; color: var(--main-pink); font-weight: 800; margin-bottom: 8px; display: block; }
-        .text { font-size: 14px; color: #555; line-height: 1.6; margin: 0; word-break: keep-all; }
-    </style>
-</head>
-<body>
-<div class="card">
-    <div class="header"><h2>✨ 오늘의 운세</h2><div class="score" id="score">-점</div></div>
-    
-    <div class="section">
-        <span class="label">📌 총운 요약</span>
-        <p class="text" id="summary">로딩 중...</p>
-    </div>
-    
-    <div class="section">
-        <span class="label">💸 재물운 & 복권운</span>
-        <p class="text" id="money">-</p>
-    </div>
-    
-    <div class="section">
-        <span class="label">📢 행운의 컬러 & 아이템</span>
-        <p class="text" id="luck">-</p>
-    </div>
-</div>
-<script>
-    // 날짜 스트링에서 순수 숫자 8자리만 강제로 추출하는 함수 (예: "2026년 06월 13일" -> "20260613")
-    function cleanDate(dateStr) {
-        if (!dateStr) return '';
-        return dateStr.replace(/[^0-9]/g, '').slice(0, 8);
-    }
-
-    async function getFortune() {
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSATK1tbFXlx9SeL_yHLVkkikVYx2CVvhwjufe1atqkUx8CrfUIbyFxFE947i2UXGHv0PT5QOG8EaY3/pub?gid=1830020802&single=true&output=csv';
-        try {
-            const res = await fetch(sheetUrl);
-            const data = await res.text();
-            
-            // 🛠️ 보정 1: \r\n과 \n 줄바꿈을 모두 통합하여 안전하게 분리
-            const rows = data.replace(/\r/g, '').split('\n').map(r => {
-                const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-                return r.split(regex).map(cell => {
-                    return cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
-                });
-            });
-
-            const offset = new Date().getTimezoneOffset() * 60000;
-            const todayStr = new Date(Date.now() - offset).toISOString().split('T')[0];
-            const cleanedToday = cleanDate(todayStr); // 코드 기준 오늘 날짜 (예: "20260613")
-            
-            // 🛠️ 보정 2: 디버깅 콘솔 로그 추가 (F12에서 확인 가능)
-            console.log("코드 기준 오늘 날짜 숫자:", cleanedToday);
-            console.log("시트에서 받아온 행 데이터들:", rows);
-
-            const row = rows.find(r => r[0] && cleanDate(r[0]) === cleanedToday);
-
-            if (row) {
-                document.getElementById('score').textContent = (row[1] || "-") + "점";
-                document.getElementById('summary').textContent = row[2] || "내용 없음";
-                document.getElementById('money').textContent = row[3] || "내용 없음";
-                document.getElementById('luck').textContent = row[4] || "내용 없음";
-            } else { 
-                document.getElementById('summary').textContent = "시트에서 오늘 날짜(" + todayStr + ")를 찾을 수 없습니다. 시트 첫 번째 열의 날짜를 다시 확인해 주세요!";
-                document.getElementById('money').textContent = "-";
-                document.getElementById('luck').textContent = "-";
-            }
-        } catch (e) { 
-            console.error(e);
-            document.getElementById('summary').textContent = "시트 연결 오류가 발생했습니다. 웹에 제대로 게시되었는지 확인해 주세요."; 
+            document.getElementById('summary').textContent = "연결 오류가 발생했습니다."; 
         }
     }
     getFortune();
