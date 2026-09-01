@@ -40,23 +40,17 @@
 
         .header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .header h2 {
             font-size: 19px;
             color: #F57F17;
-            margin: 0 0 4px 0;
+            margin: 0;
             font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-        .week-range {
-            font-size: 12px;
-            color: #757575;
-            font-weight: 600;
-        }
-
-        /* 7일 리스트 레이아웃 (세로 전체 노출) */
         .days-list {
             display: flex;
             flex-direction: column;
@@ -73,7 +67,6 @@
             gap: 8px;
         }
 
-        /* 오늘 날짜 강조 스타일 */
         .day-card.is-today {
             background: var(--today-bg);
             border: 2px solid var(--primary-yellow);
@@ -88,29 +81,23 @@
             padding-bottom: 6px;
         }
 
-        .day-title {
-            font-size: 14px;
+        .day-date-label {
+            font-size: 14.5px;
             font-weight: 800;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .day-title.sun { color: var(--sun-red); }
-        .day-title.sat { color: var(--sat-blue); }
-        .day-title.weekday { color: #E65100; }
-
-        .date-badge {
-            font-size: 11.5px;
-            color: #757575;
-            font-weight: 500;
-        }
+        .day-date-label.sun { color: var(--sun-red); }
+        .day-date-label.sat { color: var(--sat-blue); }
+        .day-date-label.weekday { color: #E65100; }
 
         .today-tag {
             background: #E65100;
             color: white;
-            font-size: 10px;
-            padding: 2px 6px;
+            font-size: 10.5px;
+            padding: 2px 7px;
             border-radius: 8px;
             font-weight: 700;
         }
@@ -125,7 +112,7 @@
         }
 
         .fortune-summary {
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 700;
             color: var(--text-dark);
             margin: 0;
@@ -139,7 +126,7 @@
             margin: 0;
             display: flex;
             gap: 12px;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             padding: 6px 10px;
             border-radius: 10px;
         }
@@ -156,8 +143,7 @@
 
 <div class="container">
     <div class="header">
-        <h2>✨ 이번 주 운세 (일~토)</h2>
-        <div class="week-range" id="weekRange">로딩 중...</div>
+        <h2 id="mainTitle">✨ 이번주 운세</h2>
     </div>
     
     <div class="days-list" id="daysList">
@@ -176,10 +162,10 @@
         const currentDay = now.getDay(); // 0(일) ~ 6(토)
         const todayNumeric = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 
-        const dayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+        const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
         const week = [];
 
-        // 이번 주 일요일 계산
+        // 이번 주 일요일 구하기
         const sunday = new Date(now);
         sunday.setDate(now.getDate() - currentDay);
 
@@ -195,10 +181,9 @@
             const num2 = `${y}${d.getMonth() + 1}${d.getDate()}`;
 
             week.push({
-                name: dayNames[i],
+                dayName: shortDays[i],
                 dayIndex: i,
-                displayDate: `${m}.${date}`,
-                fullDisplay: `${y}-${m}-${date}`,
+                formattedDate: `${m}.${date}(${shortDays[i]})`, // MM.DD(a) 포맷
                 matchKeys: [num1, num2],
                 isToday: num1 === todayNumeric
             });
@@ -221,7 +206,11 @@
             });
 
             const week = getWeekDates();
-            document.getElementById('weekRange').textContent = `${week[0].fullDisplay} ~ ${week[6].fullDisplay}`;
+            
+            // 제목 포맷 적용: 이번주 운세 (MM.DD ~ MM.DD)
+            const startDate = week[0].formattedDate.split('(')[0];
+            const endDate = week[6].formattedDate.split('(')[0];
+            document.getElementById('mainTitle').textContent = `✨ 이번주 운세 (${startDate} ~ ${endDate})`;
 
             const listContainer = document.getElementById('daysList');
             listContainer.innerHTML = '';
@@ -247,8 +236,8 @@
 
                 card.innerHTML = `
                     <div class="card-top">
-                        <div class="day-title ${dayColorClass}">
-                            ${dayInfo.name} <span class="date-badge">(${dayInfo.displayDate})</span>
+                        <div class="day-date-label ${dayColorClass}">
+                            ${dayInfo.formattedDate}
                             ${dayInfo.isToday ? '<span class="today-tag">오늘</span>' : ''}
                         </div>
                         <div class="score-badge">${score}</div>
