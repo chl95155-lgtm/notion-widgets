@@ -6,86 +6,78 @@
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-        :root {
-            --dark-yellow: #FBC02D;    /* 메인 진한 노랑 */
-            --border-yellow: #FBC02D;  /* 진한 노랑 테두리 */
-            --border-today: #F57F17;   /* 오늘 강조 진한 골드 테두리 */
-            --bg-yellow: #FFFDE7;      /* 카드 배경 크림 옐로우 */
-            --today-bg: #FFF9C4;       /* 오늘 날짜 배경 */
-            --text-dark: #2A2A2A;      /* 평일 날짜 및 본문 검정 */
-            --sun-red: #D32F2F;        /* 일요일 & 공휴일 빨강 */
-            --sat-blue: #1976D2;       /* 토요일 파랑 */
-        }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
+        * {
+            box-sizing: border-box !important;
+            margin: 0;
+            padding: 0;
         }
 
         html, body {
             width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
+            height: 100%;
             background: transparent;
             font-family: 'Pretendard', -apple-system, sans-serif;
+            overflow-x: hidden;
         }
 
         body {
-            padding: 6px;
+            padding: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
+        /* 겉 테두리: 진한 노랑(#FBC02D) 3px 강제 적용 */
         .container {
             width: 100%;
+            max-width: 100%;
             background: #ffffff;
-            border: 2.5px solid var(--border-yellow);
+            border: 3px solid #FBC02D !important;
             border-radius: 20px;
-            padding: 12px 10px;
-            box-shadow: 0 4px 15px rgba(251, 192, 45, 0.15);
-            overflow: hidden;
+            padding: 14px 10px;
+            box-shadow: 0 4px 15px rgba(251, 192, 45, 0.2);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .header h2 {
             font-size: 17px;
-            color: #F57F17;
-            margin: 0;
+            color: #E65100;
             font-weight: 800;
             letter-spacing: -0.3px;
         }
 
-        /* 💥 핵심: 7개 열이 화면 밖으로 절대 안 튀어나가게 1/7씩 강제 압축 고정 */
+        /* 💥 7개 카드가 절대로 아래로 떨어지거나 밖으로 안 삐져나가게 강제 분할 */
         .days-grid {
-            display: grid;
-            grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 5px;
-            width: 100%;
+            display: grid !important;
+            grid-template-columns: repeat(7, calc((100% - 30px) / 7)) !important;
+            gap: 5px !important;
+            width: 100% !important;
         }
 
+        /* 개별 카드: 진한 노랑(#FBC02D) 테두리 */
         .day-card {
-            background: var(--bg-yellow);
-            border: 1.5px solid var(--border-yellow);
+            background: #FFFDE7 !important;
+            border: 2px solid #FBC02D !important;
             border-radius: 12px;
-            padding: 8px 5px;
+            padding: 8px 4px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-width: 0; /* 내부 텍스트 때문에 카드가 늘어나는 현상 원천 차단 */
-            min-height: 170px;
+            min-width: 0 !important;
+            width: 100% !important;
+            min-height: 165px;
             overflow: hidden;
         }
 
-        /* 오늘 날짜 카드 강조 */
+        /* 오늘 날짜: 더 진한 골드 오렌지(#F57F17) 테두리 + 배경 */
         .day-card.is-today {
-            background: var(--today-bg);
-            border: 2px solid var(--border-today);
-            box-shadow: 0 2px 8px rgba(245, 127, 23, 0.25);
+            background: #FFF9C4 !important;
+            border: 2.5px solid #F57F17 !important;
+            box-shadow: 0 3px 10px rgba(245, 127, 23, 0.3) !important;
         }
 
         .card-top {
@@ -99,47 +91,46 @@
             width: 100%;
         }
 
-        /* 날짜 및 오늘 뱃지 한 줄 정렬 */
+        /* 날짜와 '오늘' 뱃지를 완벽하게 가로 1줄로 배치 */
         .date-row {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 2px;
             width: 100%;
+            white-space: nowrap;
         }
 
         .day-date-label {
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 800;
             letter-spacing: -0.5px;
-            white-space: nowrap;
         }
 
-        .day-date-label.weekday { color: #212121; } /* 평일 검정 */
-        .day-date-label.sat { color: var(--sat-blue); } /* 토요일 파랑 */
+        /* 날짜 색상 규칙 */
+        .day-date-label.weekday { color: #000000 !important; } /* 평일: 검정 */
+        .day-date-label.sat { color: #1976D2 !important; }     /* 토요일: 파랑 */
         .day-date-label.sun, 
-        .day-date-label.holiday { color: var(--sun-red); } /* 일요일/공휴일 빨강 */
+        .day-date-label.holiday { color: #D32F2F !important; } /* 일요일/공휴일: 빨강 */
 
         /* 요일 바로 옆 '오늘' 뱃지 */
         .today-tag {
-            background: #F57F17;
-            color: #ffffff;
+            background: #F57F17 !important;
+            color: #ffffff !important;
             font-size: 8.5px;
-            padding: 1px 3px;
+            padding: 1px 4px;
             border-radius: 4px;
             font-weight: 800;
             line-height: 1;
-            white-space: nowrap;
         }
 
         .score-badge {
-            background: var(--dark-yellow);
+            background: #FBC02D;
             color: #ffffff;
             font-size: 10px;
             font-weight: 800;
             padding: 1px 6px;
             border-radius: 6px;
-            margin-top: 1px;
         }
 
         .card-body {
@@ -152,32 +143,30 @@
         }
 
         .fortune-summary {
-            font-size: 10.5px;
+            font-size: 10px;
             font-weight: 600;
-            color: var(--text-dark);
-            margin: 0;
+            color: #212121;
             line-height: 1.35;
-            word-break: break-all; /* 단어가 길어도 자동 줄바꿈되어 잘림 방지 */
+            word-break: break-all;
             text-align: center;
         }
 
         .fortune-details {
-            font-size: 9.5px;
+            font-size: 9px;
             color: #4E342E;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 4px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 4px 3px;
             border-radius: 6px;
             line-height: 1.3;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .detail-item {
             display: block;
-            word-break: break-all; /* 내용이 길어도 다음 줄로 자연스럽게 넘김 */
+            word-break: break-all;
         }
 
         .empty-msg {
@@ -221,7 +210,7 @@
 
     function getWeekDates() {
         const now = new Date();
-        const currentDay = now.getDay(); // 0(일) ~ 6(토)
+        const currentDay = now.getDay();
         const todayNumeric = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
 
         const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
