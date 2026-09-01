@@ -15,45 +15,48 @@
             --sat-blue: #1976D2;         /* 토요일 색상 */
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background: transparent;
             margin: 0;
-            padding: 15px;
+            padding: 12px;
             font-family: 'Pretendard', -apple-system, sans-serif;
-            box-sizing: border-box;
             display: flex;
             justify-content: center;
         }
 
         .container {
             width: 100%;
-            max-width: 550px;
+            max-width: 480px;
             background: #ffffff;
             border: 2px solid var(--soft-yellow);
             border-radius: 25px;
-            padding: 22px;
+            padding: 20px;
             box-shadow: 0 8px 25px rgba(251, 192, 45, 0.12);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }
 
         .header h2 {
-            font-size: 20px;
+            font-size: 19px;
             color: #F57F17;
-            margin: 0 0 6px 0;
+            margin: 0 0 4px 0;
             font-weight: 800;
         }
 
         .week-range {
-            font-size: 13px;
+            font-size: 12px;
             color: #757575;
             font-weight: 600;
         }
 
-        /* 7일 리스트 레이아웃 */
+        /* 7일 리스트 레이아웃 (세로 전체 노출) */
         .days-list {
             display: flex;
             flex-direction: column;
@@ -64,12 +67,10 @@
             background: var(--bg-yellow);
             border: 1px solid var(--soft-yellow);
             border-radius: 16px;
-            padding: 12px 16px;
-            display: grid;
-            grid-template-columns: 85px 1fr auto;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s ease;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         /* 오늘 날짜 강조 스타일 */
@@ -77,42 +78,58 @@
             background: var(--today-bg);
             border: 2px solid var(--primary-yellow);
             box-shadow: 0 4px 12px rgba(251, 192, 45, 0.2);
-            transform: scale(1.01);
         }
 
-        .day-meta {
+        .card-top {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--soft-yellow);
+            padding-bottom: 6px;
         }
 
-        .day-name {
-            font-size: 13px;
+        .day-title {
+            font-size: 14px;
             font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .day-name.sun { color: var(--sun-red); }
-        .day-name.sat { color: var(--sat-blue); }
-        .day-name.weekday { color: #E65100; }
+        .day-title.sun { color: var(--sun-red); }
+        .day-title.sat { color: var(--sat-blue); }
+        .day-title.weekday { color: #E65100; }
 
-        .day-date {
+        .date-badge {
             font-size: 11.5px;
             color: #757575;
             font-weight: 500;
         }
 
-        .day-content {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            text-align: left;
+        .today-tag {
+            background: #E65100;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .score-badge {
+            background: var(--primary-yellow);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 12px;
         }
 
         .fortune-summary {
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--text-dark);
             margin: 0;
+            line-height: 1.5;
             word-break: keep-all;
         }
 
@@ -121,19 +138,10 @@
             color: #616161;
             margin: 0;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .score-pill {
-            background: var(--primary-yellow);
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 12px;
-            min-width: 38px;
-            text-align: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 6px 10px;
+            border-radius: 10px;
         }
 
         .empty-msg {
@@ -153,7 +161,7 @@
     </div>
     
     <div class="days-list" id="daysList">
-        <div class="empty-msg">시트 데이터를 불러오는 중입니다...</div>
+        <div class="empty-msg">7일치 시트 데이터를 불러오는 중입니다...</div>
     </div>
 </div>
 
@@ -163,7 +171,6 @@
         return dateStr.replace(/[^0-9]/g, '').trim();
     }
 
-    // 이번 주의 일요일부터 토요일까지 7일 계산
     function getWeekDates() {
         const now = new Date();
         const currentDay = now.getDay(); // 0(일) ~ 6(토)
@@ -172,7 +179,7 @@
         const dayNames = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
         const week = [];
 
-        // 이번 주 일요일 구하기
+        // 이번 주 일요일 계산
         const sunday = new Date(now);
         sunday.setDate(now.getDate() - currentDay);
 
@@ -184,17 +191,16 @@
             const m = String(d.getMonth() + 1).padStart(2, '0');
             const date = String(d.getDate()).padStart(2, '0');
 
-            const numericStr1 = `${y}${m}${date}`;
-            const numericStr2 = `${y}${d.getMonth() + 1}${d.getDate()}`;
+            const num1 = `${y}${m}${date}`;
+            const num2 = `${y}${d.getMonth() + 1}${d.getDate()}`;
 
             week.push({
-                dateObj: d,
                 name: dayNames[i],
                 dayIndex: i,
                 displayDate: `${m}.${date}`,
                 fullDisplay: `${y}-${m}-${date}`,
-                matchKeys: [numericStr1, numericStr2],
-                isToday: numericStr1 === todayNumeric
+                matchKeys: [num1, num2],
+                isToday: num1 === todayNumeric
             });
         }
         return week;
@@ -221,7 +227,6 @@
             listContainer.innerHTML = '';
 
             week.forEach(dayInfo => {
-                // 시트에서 해당 날짜 찾기
                 const matchedRow = rows.find(r => {
                     if (!r[0]) return false;
                     const sheetDate = cleanNumericDate(r[0]);
@@ -231,28 +236,28 @@
                 const card = document.createElement('div');
                 card.className = `day-card ${dayInfo.isToday ? 'is-today' : ''}`;
 
-                let dayClass = 'weekday';
-                if (dayInfo.dayIndex === 0) dayClass = 'sun';
-                if (dayInfo.dayIndex === 6) dayClass = 'sat';
+                let dayColorClass = 'weekday';
+                if (dayInfo.dayIndex === 0) dayColorClass = 'sun';
+                if (dayInfo.dayIndex === 6) dayColorClass = 'sat';
 
                 const score = matchedRow ? (matchedRow[1] || "-") + "점" : "-";
-                const summary = matchedRow ? (matchedRow[2] || "운세 데이터 없음") : "시트에 입력된 데이터가 없습니다.";
+                const summary = matchedRow ? (matchedRow[2] || "운세 데이터 없음") : "시트에 해당 일자 데이터가 없습니다.";
                 const money = matchedRow ? (matchedRow[3] || "-") : "-";
                 const luckColor = matchedRow ? (matchedRow[4] || "-") : "-";
 
                 card.innerHTML = `
-                    <div class="day-meta">
-                        <span class="day-name ${dayClass}">${dayInfo.name}${dayInfo.isToday ? ' (오늘)' : ''}</span>
-                        <span class="day-date">${dayInfo.displayDate}</span>
+                    <div class="card-top">
+                        <div class="day-title ${dayColorClass}">
+                            ${dayInfo.name} <span class="date-badge">(${dayInfo.displayDate})</span>
+                            ${dayInfo.isToday ? '<span class="today-tag">오늘</span>' : ''}
+                        </div>
+                        <div class="score-badge">${score}</div>
                     </div>
-                    <div class="day-content">
-                        <p class="fortune-summary">${summary}</p>
-                        <p class="fortune-details">
-                            <span>💰 재물: ${money}</span>
-                            <span>🎨 컬러: ${luckColor}</span>
-                        </p>
+                    <p class="fortune-summary">${summary}</p>
+                    <div class="fortune-details">
+                        <span>💰 재물: ${money}</span>
+                        <span>🎨 행운 컬러: ${luckColor}</span>
                     </div>
-                    <div class="score-pill">${score}</div>
                 `;
 
                 listContainer.appendChild(card);
