@@ -6,13 +6,14 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            --primary-yellow: #FBC02D;   /* 포인트 진한 노랑 */
-            --soft-yellow: #FFF59D;      /* 테두리 및 구분선 */
-            --bg-yellow: #FFFDE7;        /* 카드 배경 */
-            --today-bg: #FFF9C4;         /* 오늘 날짜 강조 배경 */
-            --text-dark: #333333;        /* 텍스트 본문 (평일 검정) */
-            --sun-red: #D32F2F;          /* 일요일 & 공휴일 빨강 */
-            --sat-blue: #1976D2;         /* 토요일 파랑 */
+            --dark-yellow: #FBC02D;    /* 메인 진한 노랑 */
+            --border-yellow: #FBC02D;  /* 진한 노랑 테두리 */
+            --border-today: #F57F17;   /* 오늘 강조 진한 골드 테두리 */
+            --bg-yellow: #FFFDE7;      /* 카드 배경 크림 옐로우 */
+            --today-bg: #FFF9C4;       /* 오늘 날짜 배경 */
+            --text-dark: #2A2A2A;      /* 평일 날짜 및 본문 검정 */
+            --sun-red: #D32F2F;        /* 일요일 & 공휴일 빨강 */
+            --sat-blue: #1976D2;       /* 토요일 파랑 */
         }
 
         * {
@@ -22,7 +23,7 @@
         body {
             background: transparent;
             margin: 0;
-            padding: 12px;
+            padding: 8px;
             font-family: 'Pretendard', -apple-system, sans-serif;
             display: flex;
             justify-content: center;
@@ -31,52 +32,50 @@
 
         .container {
             width: 100%;
-            max-width: 1100px; /* 가로형 확장을 위한 너비 */
             background: #ffffff;
-            border: 2px solid var(--soft-yellow);
-            border-radius: 25px;
-            padding: 20px;
-            box-shadow: 0 8px 25px rgba(251, 192, 45, 0.12);
+            /* 진한 노랑 테두리 */
+            border: 2.5px solid var(--border-yellow);
+            border-radius: 22px;
+            padding: 16px 14px;
+            box-shadow: 0 6px 20px rgba(251, 192, 45, 0.15);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .header h2 {
-            font-size: 19px;
+            font-size: 18px;
             color: #F57F17;
             margin: 0;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
         }
 
-        /* 7일 가로 그리드 배치 */
+        /* 7개 요일 가로 1열 균등 분할 */
         .days-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 6px;
         }
 
         .day-card {
             background: var(--bg-yellow);
-            border: 1px solid var(--soft-yellow);
-            border-radius: 16px;
-            padding: 12px 10px;
+            border: 1.5px solid var(--border-yellow);
+            border-radius: 14px;
+            padding: 10px 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 190px;
-            transition: transform 0.2s ease;
+            min-height: 180px;
         }
 
-        /* 오늘 날짜 강조 스타일 */
+        /* 오늘 날짜 카드 강조 */
         .day-card.is-today {
             background: var(--today-bg);
-            border: 2px solid var(--primary-yellow);
-            box-shadow: 0 4px 12px rgba(251, 192, 45, 0.25);
-            transform: translateY(-2px);
+            border: 2.5px solid var(--border-today);
+            box-shadow: 0 4px 10px rgba(245, 127, 23, 0.2);
         }
 
         .card-top {
@@ -84,97 +83,94 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            border-bottom: 1px dashed var(--soft-yellow);
-            padding-bottom: 8px;
-            margin-bottom: 8px;
+            border-bottom: 1px dashed #FBC02D;
+            padding-bottom: 6px;
+            margin-bottom: 6px;
+        }
+
+        /* 날짜 및 오늘 뱃지 한 줄 정렬 */
+        .date-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            flex-wrap: nowrap;
         }
 
         .day-date-label {
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 800;
-            text-align: center;
+            white-space: nowrap;
         }
 
-        /* 요일별 & 공휴일 색상 규칙 */
         .day-date-label.weekday { color: #212121; } /* 평일 검정 */
         .day-date-label.sat { color: var(--sat-blue); } /* 토요일 파랑 */
         .day-date-label.sun, 
-        .day-date-label.holiday { color: var(--sun-red); } /* 일요일 및 공휴일 빨강 */
+        .day-date-label.holiday { color: var(--sun-red); } /* 일요일/공휴일 빨강 */
 
+        /* 요일 바로 옆 '오늘' 뱃지 */
         .today-tag {
-            background: #E65100;
-            color: white;
-            font-size: 10px;
-            padding: 1px 6px;
-            border-radius: 8px;
-            font-weight: 700;
+            background: #F57F17;
+            color: #ffffff;
+            font-size: 9.5px;
+            padding: 1px 5px;
+            border-radius: 6px;
+            font-weight: 800;
+            line-height: 1.2;
+            white-space: nowrap;
         }
 
         .score-badge {
-            background: var(--primary-yellow);
+            background: var(--dark-yellow);
             color: #ffffff;
             font-size: 11px;
             font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-top: 2px;
+            padding: 2px 7px;
+            border-radius: 8px;
         }
 
         .card-body {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             flex-grow: 1;
             justify-content: space-between;
         }
 
         .fortune-summary {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-dark);
             margin: 0;
-            line-height: 1.45;
+            line-height: 1.4;
             word-break: keep-all;
             text-align: center;
         }
 
         .fortune-details {
-            font-size: 11px;
-            color: #616161;
+            font-size: 10px;
+            color: #4E342E;
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 6px;
-            border-radius: 8px;
+            gap: 3px;
+            background: rgba(255, 255, 255, 0.75);
+            padding: 5px 6px;
+            border-radius: 7px;
+            line-height: 1.35;
         }
 
         .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: block;
+            word-break: keep-all;
         }
 
         .empty-msg {
             color: #9E9E9E;
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
             padding: 20px 0;
             grid-column: span 7;
-        }
-
-        /* 화면이 좁은 모바일 대응 가로 스크롤 */
-        @media (max-width: 768px) {
-            .container {
-                overflow-x: auto;
-            }
-            .days-grid {
-                min-width: 700px;
-            }
         }
     </style>
 </head>
@@ -191,17 +187,17 @@
 </div>
 
 <script>
-    // 2026년 대한민국 주요 공휴일 목록 (월: 0부터 시작)
+    // 2026년 대한민국 공휴일 데이터
     const holidays2026 = {
-        0: [1],             // 1월 1일 (신정)
-        1: [16, 17, 18],    // 2월 설날 연휴
-        2: [1, 2],          // 3월 1일(삼일절), 3월 2일(대체공휴일)
-        4: [5, 24, 25],     // 5월 5일(어린이날), 5월 24일(부처님오신날), 5월 25일(대체공휴일)
-        5: [6],             // 6월 6일 (현충일)
-        7: [15, 17],        // 8월 15일(광복절), 8월 17일(대체공휴일)
-        8: [24, 25, 26],    // 9월 추석 연휴
-        9: [3, 5, 9],       // 10월 3일(개천절), 10월 5일(대체공휴일), 10월 9일(한글날)
-        11: [25]            // 12월 25일 (성탄절)
+        0: [1],
+        1: [16, 17, 18],
+        2: [1, 2],
+        4: [5, 24, 25],
+        5: [6],
+        7: [15, 17],
+        8: [24, 25, 26],
+        9: [3, 5, 9],
+        11: [25]
     };
 
     function cleanNumericDate(dateStr) {
@@ -217,7 +213,7 @@
         const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
         const week = [];
 
-        // 이번 주 일요일 구하기
+        // 이번 주 일요일 계산
         const sunday = new Date(now);
         sunday.setDate(now.getDate() - currentDay);
 
@@ -235,7 +231,6 @@
             const num1 = `${y}${monthStr}${dateStr}`;
             const num2 = `${y}${m + 1}${date}`;
 
-            // 공휴일 여부 체크
             const isHoliday = holidays2026[m] && holidays2026[m].includes(date);
 
             week.push({
@@ -282,13 +277,12 @@
                 const card = document.createElement('div');
                 card.className = `day-card ${dayInfo.isToday ? 'is-today' : ''}`;
 
-                // 색상 클래스 결정
                 let colorClass = 'weekday';
                 if (dayInfo.dayIndex === 0) colorClass = 'sun';
                 else if (dayInfo.dayIndex === 6) colorClass = 'sat';
                 
                 if (dayInfo.isHoliday) {
-                    colorClass = 'holiday'; // 공휴일은 평일/토요일이어도 빨간색 적용
+                    colorClass = 'holiday';
                 }
 
                 const score = matchedRow ? (matchedRow[1] || "-") + "점" : "-";
@@ -298,17 +292,17 @@
 
                 card.innerHTML = `
                     <div class="card-top">
-                        <div class="day-date-label ${colorClass}">
-                            ${dayInfo.formattedDate}
+                        <div class="date-row">
+                            <span class="day-date-label ${colorClass}">${dayInfo.formattedDate}</span>
+                            ${dayInfo.isToday ? '<span class="today-tag">오늘</span>' : ''}
                         </div>
-                        ${dayInfo.isToday ? '<span class="today-tag">오늘</span>' : ''}
                         <div class="score-badge">${score}</div>
                     </div>
                     <div class="card-body">
                         <p class="fortune-summary">${summary}</p>
                         <div class="fortune-details">
-                            <span class="detail-item" title="${money}">💰 ${money}</span>
-                            <span class="detail-item" title="${luckColor}">🎨 ${luckColor}</span>
+                            <span class="detail-item">💰 ${money}</span>
+                            <span class="detail-item">🎨 ${luckColor}</span>
                         </div>
                     </div>
                 `;
