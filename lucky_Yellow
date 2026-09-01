@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --primary-yellow: #FBC02D;   /* 포인트 진한 노랑 (타이틀, 점수, 라벨) */
+            --soft-yellow: #FFF59D;      /* 테두리 및 구분선 */
+            --bg-yellow: #FFFDE7;        /* 섹션 배경용 부드러운 크림 옐로우 */
+            --text-dark: #424242;        /* 본문 텍스트 가독성 색상 */
+        }
+
+        body {
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 2px solid var(--soft-yellow);
+            border-radius: 25px;
+            padding: 24px;
+            width: 450px;
+            max-width: 90%;
+            box-shadow: 0 8px 20px rgba(251, 192, 45, 0.12);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .header h2 {
+            font-size: 19px;
+            color: #F57F17; /* 가독성을 살린 딥 옐로우/골드 */
+            margin: 0;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .score-badge {
+            background: var(--primary-yellow);
+            color: #ffffff;
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(251, 192, 45, 0.3);
+        }
+
+        .section {
+            background: var(--bg-yellow);
+            border: 1px solid var(--soft-yellow);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            font-size: 14px;
+            color: #E65100; /* 시인성 높은 앰버 컬러 */
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .text {
+            font-size: 13.5px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0;
+            word-break: keep-all;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <h2>✨ 이번주 운세</h2>
+        <div class="score-badge" id="score">-점</div>
+    </div>
+    
+    <div class="section">
+        <span class="label">📌 이번주 총운</span>
+        <p class="text" id="summary">운세를 불러오는 중입니다...</p>
+    </div>
+    
+    <div class="section">
+        <span class="label">💰 이번주 재물운</span>
+        <p class="text" id="money">-</p>
+    </div>
+    
+    <div class="section">
+        <span class="label">🎨 행운의 컬러</span>
+        <p class="text" id="luckColor">-</p>
+    </div>
+</div>
+
+<script>
+    // 날짜 텍스트에서 숫자만 추출하는 함수
+    function extractNumericDate(dateStr) {
+        if (!dateStr) return '';
+        return dateStr.replace(/[^0-9]/g, '').trim();
+    }
+
+    // 이번 주의 월요일 날짜 계산 함수
+    function getThisMonday() {
+        const now = new Date();
+        const day = now.getDay(); // 0(일) ~ 6(토)
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1); // 일요일이면 지난 월요일로 계산
+        const monday = new Date(now.setDate(diff));
+        
+        const year = monday.getFullYear();
+        const month = String(monday.getMonth() + 1).padStart(2, '0');
+        const date = String(monday.getDate()).padStart(2, '0');
+        
+        return {
+            full: `${year}${month}${date}`,         // 예: "20260831"
+            short: `${year}${monday.getMonth() + 1}${monday.getDate()}`, // 예: "2026831"
+            display: `${year}-${month}-${date}`
+        };
+    }
+
+    async function getWeeklyFortune() {
+        // ⚠️ 발행한 본인의 구글 스프레드시트 CSV URL을 여기에 입력하세요
+        const sheetUrl = 'YOUR_GOOGLE_SHEET_CSV_URL_HERE';
+
+        try {
+            const res = await fetch(sheetUrl);
+            const data = await res.text();
+            
+            // CSV 줄바꿈 및 데이터 파싱
+            const rows = data.replace(/\r/g, '').split('\n').map(r => {
+                const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                return r.split(regex).map(cell => {
+                    return cell.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
+                });
+            });
+
+            const monday = getThisMonday();
+
+            // 이번주 월요일 날짜와 매칭되는 행 찾기
+            const row = rows.find(r => {
+                if (!r[0]) return false;
+                const sheetDate = extractNumericDate(r[0]);
+                return sheetDate === monday.full || sheetDate === monday.short;
+            });
+
+            if (row) {
+                document.getElementById('score').textContent = (row[1] || "-") + "점";
+                document.getElementById('summary').textContent = row[2] || "내용 없음";
+                document.getElementById('money').textContent = row[3] || "내용 없음";
+                document.getElementById('luckColor').textContent = row[4] || "내용 없음";
+            } else {
+                document.getElementById('summary').textContent = `시트에 이번주 시작일(${monday.display})에 해당하는 데이터가 입력되어 있는지 확인해 주세요!`;
+                document.getElementById('money').textContent = "-";
+                document.getElementById('luckColor').textContent = "-";
+            }
+        } catch (e) {
+            console.error(e);
+            document.getElementById('summary').textContent = "구글 시트 연결 오류가 발생했습니다. CSV 게시 설정을 확인해 주세요.";
+        }
+    }
+
+    getWeeklyFortune();
+</script>
+</body>
+</html>
