@@ -10,9 +10,9 @@
             --soft-yellow: #FFF59D;      /* 테두리 및 구분선 */
             --bg-yellow: #FFFDE7;        /* 카드 배경 */
             --today-bg: #FFF9C4;         /* 오늘 날짜 강조 배경 */
-            --text-dark: #333333;        /* 텍스트 본문 */
-            --sun-red: #D32F2F;          /* 일요일 색상 */
-            --sat-blue: #1976D2;         /* 토요일 색상 */
+            --text-dark: #333333;        /* 텍스트 본문 (평일 검정) */
+            --sun-red: #D32F2F;          /* 일요일 & 공휴일 빨강 */
+            --sat-blue: #1976D2;         /* 토요일 파랑 */
         }
 
         * {
@@ -26,11 +26,12 @@
             font-family: 'Pretendard', -apple-system, sans-serif;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
 
         .container {
-            width: 240%;
-            max-width: 480px;
+            width: 100%;
+            max-width: 1100px; /* 가로형 확장을 위한 너비 */
             background: #ffffff;
             border: 2px solid var(--soft-yellow);
             border-radius: 25px;
@@ -40,7 +41,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .header h2 {
@@ -51,53 +52,60 @@
             letter-spacing: -0.5px;
         }
 
-        .days-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* 7일 가로 그리드 배치 */
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
         }
 
         .day-card {
             background: var(--bg-yellow);
             border: 1px solid var(--soft-yellow);
             border-radius: 16px;
-            padding: 14px;
+            padding: 12px 10px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            justify-content: space-between;
+            min-height: 190px;
+            transition: transform 0.2s ease;
         }
 
+        /* 오늘 날짜 강조 스타일 */
         .day-card.is-today {
             background: var(--today-bg);
             border: 2px solid var(--primary-yellow);
-            box-shadow: 0 4px 12px rgba(251, 192, 45, 0.2);
+            box-shadow: 0 4px 12px rgba(251, 192, 45, 0.25);
+            transform: translateY(-2px);
         }
 
         .card-top {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            gap: 4px;
             border-bottom: 1px dashed var(--soft-yellow);
-            padding-bottom: 6px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
         }
 
         .day-date-label {
-            font-size: 14.5px;
+            font-size: 13.5px;
             font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            text-align: center;
         }
 
-        .day-date-label.sun { color: var(--sun-red); }
-        .day-date-label.sat { color: var(--sat-blue); }
-        .day-date-label.weekday { color: #E65100; }
+        /* 요일별 & 공휴일 색상 규칙 */
+        .day-date-label.weekday { color: #212121; } /* 평일 검정 */
+        .day-date-label.sat { color: var(--sat-blue); } /* 토요일 파랑 */
+        .day-date-label.sun, 
+        .day-date-label.holiday { color: var(--sun-red); } /* 일요일 및 공휴일 빨강 */
 
         .today-tag {
             background: #E65100;
             color: white;
-            font-size: 10.5px;
-            padding: 2px 7px;
+            font-size: 10px;
+            padding: 1px 6px;
             border-radius: 8px;
             font-weight: 700;
         }
@@ -105,30 +113,50 @@
         .score-badge {
             background: var(--primary-yellow);
             color: #ffffff;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
-            padding: 3px 10px;
-            border-radius: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 2px;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+            justify-content: space-between;
         }
 
         .fortune-summary {
-            font-size: 13.5px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-dark);
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.45;
             word-break: keep-all;
+            text-align: center;
         }
 
         .fortune-details {
-            font-size: 12px;
+            font-size: 11px;
             color: #616161;
             margin: 0;
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            gap: 4px;
             background: rgba(255, 255, 255, 0.7);
-            padding: 6px 10px;
-            border-radius: 10px;
+            padding: 6px;
+            border-radius: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .empty-msg {
@@ -136,6 +164,17 @@
             font-size: 13px;
             text-align: center;
             padding: 20px 0;
+            grid-column: span 7;
+        }
+
+        /* 화면이 좁은 모바일 대응 가로 스크롤 */
+        @media (max-width: 768px) {
+            .container {
+                overflow-x: auto;
+            }
+            .days-grid {
+                min-width: 700px;
+            }
         }
     </style>
 </head>
@@ -146,12 +185,25 @@
         <h2 id="mainTitle">✨ 이번주 운세</h2>
     </div>
     
-    <div class="days-list" id="daysList">
+    <div class="days-grid" id="daysGrid">
         <div class="empty-msg">7일치 시트 데이터를 불러오는 중입니다...</div>
     </div>
 </div>
 
 <script>
+    // 2026년 대한민국 주요 공휴일 목록 (월: 0부터 시작)
+    const holidays2026 = {
+        0: [1],             // 1월 1일 (신정)
+        1: [16, 17, 18],    // 2월 설날 연휴
+        2: [1, 2],          // 3월 1일(삼일절), 3월 2일(대체공휴일)
+        4: [5, 24, 25],     // 5월 5일(어린이날), 5월 24일(부처님오신날), 5월 25일(대체공휴일)
+        5: [6],             // 6월 6일 (현충일)
+        7: [15, 17],        // 8월 15일(광복절), 8월 17일(대체공휴일)
+        8: [24, 25, 26],    // 9월 추석 연휴
+        9: [3, 5, 9],       // 10월 3일(개천절), 10월 5일(대체공휴일), 10월 9일(한글날)
+        11: [25]            // 12월 25일 (성탄절)
+    };
+
     function cleanNumericDate(dateStr) {
         if (!dateStr) return '';
         return dateStr.replace(/[^0-9]/g, '').trim();
@@ -174,18 +226,24 @@
             d.setDate(sunday.getDate() + i);
 
             const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const date = String(d.getDate()).padStart(2, '0');
+            const m = d.getMonth();
+            const date = d.getDate();
 
-            const num1 = `${y}${m}${date}`;
-            const num2 = `${y}${d.getMonth() + 1}${d.getDate()}`;
+            const monthStr = String(m + 1).padStart(2, '0');
+            const dateStr = String(date).padStart(2, '0');
+
+            const num1 = `${y}${monthStr}${dateStr}`;
+            const num2 = `${y}${m + 1}${date}`;
+
+            // 공휴일 여부 체크
+            const isHoliday = holidays2026[m] && holidays2026[m].includes(date);
 
             week.push({
-                dayName: shortDays[i],
                 dayIndex: i,
-                formattedDate: `${m}.${date}(${shortDays[i]})`, // MM.DD(a) 포맷
+                formattedDate: `${monthStr}.${dateStr}(${shortDays[i]})`,
                 matchKeys: [num1, num2],
-                isToday: num1 === todayNumeric
+                isToday: num1 === todayNumeric,
+                isHoliday: isHoliday
             });
         }
         return week;
@@ -207,13 +265,12 @@
 
             const week = getWeekDates();
             
-            // 제목 포맷 적용: 이번주 운세 (MM.DD ~ MM.DD)
             const startDate = week[0].formattedDate.split('(')[0];
             const endDate = week[6].formattedDate.split('(')[0];
             document.getElementById('mainTitle').textContent = `✨ 이번주 운세 (${startDate} ~ ${endDate})`;
 
-            const listContainer = document.getElementById('daysList');
-            listContainer.innerHTML = '';
+            const gridContainer = document.getElementById('daysGrid');
+            gridContainer.innerHTML = '';
 
             week.forEach(dayInfo => {
                 const matchedRow = rows.find(r => {
@@ -225,36 +282,43 @@
                 const card = document.createElement('div');
                 card.className = `day-card ${dayInfo.isToday ? 'is-today' : ''}`;
 
-                let dayColorClass = 'weekday';
-                if (dayInfo.dayIndex === 0) dayColorClass = 'sun';
-                if (dayInfo.dayIndex === 6) dayColorClass = 'sat';
+                // 색상 클래스 결정
+                let colorClass = 'weekday';
+                if (dayInfo.dayIndex === 0) colorClass = 'sun';
+                else if (dayInfo.dayIndex === 6) colorClass = 'sat';
+                
+                if (dayInfo.isHoliday) {
+                    colorClass = 'holiday'; // 공휴일은 평일/토요일이어도 빨간색 적용
+                }
 
                 const score = matchedRow ? (matchedRow[1] || "-") + "점" : "-";
-                const summary = matchedRow ? (matchedRow[2] || "운세 데이터 없음") : "시트에 해당 일자 데이터가 없습니다.";
+                const summary = matchedRow ? (matchedRow[2] || "운세 데이터 없음") : "시트에 데이터 없음";
                 const money = matchedRow ? (matchedRow[3] || "-") : "-";
                 const luckColor = matchedRow ? (matchedRow[4] || "-") : "-";
 
                 card.innerHTML = `
                     <div class="card-top">
-                        <div class="day-date-label ${dayColorClass}">
+                        <div class="day-date-label ${colorClass}">
                             ${dayInfo.formattedDate}
-                            ${dayInfo.isToday ? '<span class="today-tag">오늘</span>' : ''}
                         </div>
+                        ${dayInfo.isToday ? '<span class="today-tag">오늘</span>' : ''}
                         <div class="score-badge">${score}</div>
                     </div>
-                    <p class="fortune-summary">${summary}</p>
-                    <div class="fortune-details">
-                        <span>💰 재물: ${money}</span>
-                        <span>🎨 행운 컬러: ${luckColor}</span>
+                    <div class="card-body">
+                        <p class="fortune-summary">${summary}</p>
+                        <div class="fortune-details">
+                            <span class="detail-item" title="${money}">💰 ${money}</span>
+                            <span class="detail-item" title="${luckColor}">🎨 ${luckColor}</span>
+                        </div>
                     </div>
                 `;
 
-                listContainer.appendChild(card);
+                gridContainer.appendChild(card);
             });
 
         } catch (e) {
             console.error(e);
-            document.getElementById('daysList').innerHTML = `<div class="empty-msg">구글 시트 연결 오류가 발생했습니다.</div>`;
+            document.getElementById('daysGrid').innerHTML = `<div class="empty-msg">구글 시트 연결 오류가 발생했습니다.</div>`;
         }
     }
 
