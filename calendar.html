@@ -28,7 +28,7 @@
         /* 🌸 라운드 스퀘어 카드 디자인 강화 */
         .calendar-card {
             background-color: var(--bg-white);
-            border: 3px solid var(--main-pink); /* 테두리를 조금 더 두껍게 */
+            border: 3px solid var(--main-pink);
             border-radius: 30px;
             padding: 20px;
             width: 230px;
@@ -79,7 +79,7 @@
         .day-label {
             padding: 10px 0;
             font-weight: 800;
-            background-color: var(--bg-pink); /* 요일 바 배경도 핑크 */
+            background-color: var(--bg-pink);
         }
 
         .sun { color: var(--sun-red) !important; }
@@ -141,7 +141,7 @@
     };
 
     function generateCalendar() {
-        const now = new Date(); // 현재 날짜: 2026년 2월 12일 기준 작동
+        const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
         const today = now.getDate();
@@ -155,6 +155,7 @@
         const prevDaysInMonth = new Date(year, month, 0).getDate();
         const grid = document.getElementById('calendarGrid');
 
+        // 이전 달 날짜 채우기
         for (let i = firstDay - 1; i >= 0; i--) {
             const cell = document.createElement('div');
             cell.className = 'date-cell other-month';
@@ -162,6 +163,7 @@
             grid.appendChild(cell);
         }
 
+        // 이번 달 날짜 채우기
         for (let i = 1; i <= daysInMonth; i++) {
             const cell = document.createElement('div');
             cell.className = 'date-cell';
@@ -183,6 +185,16 @@
             } else {
                 cell.textContent = i;
             }
+            grid.appendChild(cell);
+        }
+
+        // 🌸 마지막 주 비어있는 칸 다음 달 날짜(1, 2, 3...)로 채우기
+        const lastDayIndex = new Date(year, month, daysInMonth).getDay();
+        const nextDays = (6 - lastDayIndex); // 토요일(6)까지 남은 일수 계산
+        for (let i = 1; i <= nextDays; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell other-month';
+            cell.textContent = i;
             grid.appendChild(cell);
         }
     }
