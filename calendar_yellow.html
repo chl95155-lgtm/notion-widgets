@@ -30,7 +30,7 @@
             border: 3px solid var(--main-yellow);
             border-radius: 25px;
             padding: 20px;
-            width: 240px; /* 요일 표기가 길어져 가로 폭을 살짝 넓혔습니다 */
+            width: 240px;
             box-shadow: 0 10px 25px rgba(251, 192, 45, 0.15);
         }
 
@@ -67,7 +67,7 @@
 
         .day-label, .date-cell {
             text-align: center;
-            font-size: 11px; /* 폰트 크기를 살짝 조정하여 균형을 맞췄습니다 */
+            font-size: 11px;
             color: var(--text-brown);
             border-right: 1px solid var(--grid-line);
             border-bottom: 1px solid var(--grid-line);
@@ -140,7 +140,7 @@
     };
 
     function generateCalendar() {
-        const now = new Date(); // 현재 시간: 2026년 2월 5일 기준 작동
+        const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
         const today = now.getDate();
@@ -179,6 +179,16 @@
                 if (dayOfWeek === 0 || isHoliday) cell.classList.add('is-holiday');
                 if (dayOfWeek === 6) cell.classList.add('sat');
             }
+            grid.appendChild(cell);
+        }
+
+        // 마지막 주 비어있는 칸 다음 달 날짜로 채우기
+        const lastDayIndex = new Date(year, month, daysInMonth).getDay();
+        const nextDays = (6 - lastDayIndex); // 토요일(6)까지 남은 일수 계산
+        for (let i = 1; i <= nextDays; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'date-cell other-month';
+            cell.textContent = i;
             grid.appendChild(cell);
         }
     }
