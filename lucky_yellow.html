@@ -27,55 +27,50 @@
             align-items: center;
         }
 
-        /* 겉 테두리: 진한 노랑(#FBC02D) 3px */
         .container {
             width: 100%;
             max-width: 100%;
             background: #ffffff;
             border: 3px solid #FBC02D !important;
             border-radius: 20px;
-            padding: 14px 10px;
+            padding: 16px 12px;
             box-shadow: 0 4px 15px rgba(251, 192, 45, 0.2);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
-        /* 타이틀 색상: #FBC02D 적용 및 시인성 보정 */
         .header h2 {
             font-size: 18px;
-            color: #000000 !important;
+            color: #212121 !important;
             font-weight: 800;
             letter-spacing: -0.3px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
         }
 
-        /* 7개 카드가 1줄로 균등 배치 */
+        /* 💥 카드 사이 간격(gap: 9px) 확장 및 7열 분할 재계산 */
         .days-grid {
             display: grid !important;
-            grid-template-columns: repeat(7, calc((100% - 30px) / 7)) !important;
-            gap: 5px !important;
+            grid-template-columns: repeat(7, calc((100% - 54px) / 7)) !important;
+            gap: 9px !important;
             width: 100% !important;
         }
 
-        /* 개별 카드 */
         .day-card {
             background: #FFFDE7 !important;
             border: 2px solid #FBC02D !important;
             border-radius: 14px;
-            padding: 9px 5px;
+            padding: 10px 6px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             min-width: 0 !important;
             width: 100% !important;
-            min-height: 180px;
+            min-height: 185px;
             overflow: hidden;
         }
 
-        /* 오늘 날짜 카드 강조 */
         .day-card.is-today {
             background: #FFF9C4 !important;
             border: 2.5px solid #F57F17 !important;
@@ -103,7 +98,7 @@
         }
 
         .day-date-label {
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 800;
             letter-spacing: -0.5px;
         }
@@ -126,7 +121,7 @@
         .score-badge {
             background: #FBC02D;
             color: #ffffff;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 800;
             padding: 2px 7px;
             border-radius: 6px;
@@ -142,7 +137,7 @@
         }
 
         .fortune-summary {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             color: #212121;
             line-height: 1.4;
@@ -151,7 +146,7 @@
         }
 
         .fortune-details {
-            font-size: 11px;
+            font-size: 10.5px;
             color: #3E2723;
             background: rgba(255, 255, 255, 0.85);
             padding: 6px 4px;
@@ -208,7 +203,6 @@
         return dateStr.replace(/[^0-9]/g, '').trim();
     }
 
-    // 오늘(0일차)부터 앞으로 7일치 계산 (오늘이 맨 앞)
     function getNext7Days() {
         const now = new Date();
         const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -258,7 +252,6 @@
 
             const days = getNext7Days();
             
-            // 타이틀: 🍀 한눈에 보는 7일 운세 (시작일 ~ 종료일) 🍀
             const startDate = days[0].formattedDate.split('(')[0];
             const endDate = days[6].formattedDate.split('(')[0];
             document.getElementById('mainTitle').textContent = `🍀 한눈에 보는 7일 운세 (${startDate} ~ ${endDate}) 🍀`;
