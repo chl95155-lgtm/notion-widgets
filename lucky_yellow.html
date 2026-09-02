@@ -43,11 +43,13 @@
             margin-bottom: 12px;
         }
 
+        /* 타이틀 색상: #FBC02D 적용 및 시인성 보정 */
         .header h2 {
             font-size: 18px;
-            color: #E65100;
+            color: #FBC02D !important;
             font-weight: 800;
             letter-spacing: -0.3px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
         }
 
         /* 7개 카드가 1줄로 균등 배치 */
@@ -139,7 +141,6 @@
             width: 100%;
         }
 
-        /* 🔍 폰트 사이즈 확대: 총운 10px -> 12px */
         .fortune-summary {
             font-size: 12px;
             font-weight: 700;
@@ -149,7 +150,6 @@
             text-align: center;
         }
 
-        /* 🔍 폰트 사이즈 확대: 세부정보 9px -> 11px */
         .fortune-details {
             font-size: 11px;
             color: #3E2723;
@@ -182,7 +182,7 @@
 
 <div class="container">
     <div class="header">
-        <h2 id="mainTitle">✨ 7일간의 운세</h2>
+        <h2 id="mainTitle">🍀 한눈에 보는 7일 운세 🍀</h2>
     </div>
     
     <div class="days-grid" id="daysGrid">
@@ -208,7 +208,7 @@
         return dateStr.replace(/[^0-9]/g, '').trim();
     }
 
-    // 💥 핵심: 오늘(0일차)부터 앞으로 7일치 계산 (오늘이 맨 앞)
+    // 오늘(0일차)부터 앞으로 7일치 계산 (오늘이 맨 앞)
     function getNext7Days() {
         const now = new Date();
         const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -235,7 +235,7 @@
                 dayIndex: dayOfWeek,
                 formattedDate: `${monthStr}.${dateStr}(${shortDays[dayOfWeek]})`,
                 matchKeys: [num1, num2],
-                isToday: i === 0, // 첫 번째 항목이 오늘
+                isToday: i === 0,
                 isHoliday: isHoliday
             });
         }
@@ -258,10 +258,10 @@
 
             const days = getNext7Days();
             
-            // 제목 포맷: 7일간의 운세 (오늘MM.DD ~ 7일째MM.DD)
+            // 타이틀: 🍀 한눈에 보는 7일 운세 (시작일 ~ 종료일) 🍀
             const startDate = days[0].formattedDate.split('(')[0];
             const endDate = days[6].formattedDate.split('(')[0];
-            document.getElementById('mainTitle').textContent = `✨ 7일간의 운세 (${startDate} ~ ${endDate})`;
+            document.getElementById('mainTitle').textContent = `🍀 한눈에 보는 7일 운세 (${startDate} ~ ${endDate}) 🍀`;
 
             const gridContainer = document.getElementById('daysGrid');
             gridContainer.innerHTML = '';
