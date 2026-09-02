@@ -49,7 +49,7 @@
             letter-spacing: -0.3px;
         }
 
-        /* 💥 카드 사이 간격(gap: 9px) 확장 및 7열 분할 재계산 */
+        /* 💥 카드 사이 간격(gap: 9px) 및 7열 분할 */
         .days-grid {
             display: grid !important;
             grid-template-columns: repeat(7, calc((100% - 54px) / 7)) !important;
@@ -61,7 +61,7 @@
             background: #FFFDE7 !important;
             border: 2px solid #FBC02D !important;
             border-radius: 14px;
-            padding: 10px 6px;
+            padding: 10px 7px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -77,9 +77,10 @@
             box-shadow: 0 3px 10px rgba(245, 127, 23, 0.3) !important;
         }
 
+        /* 💥 상단 바: 좌측에 날짜/오늘, 우측 상단에 점수 뱃지 */
         .card-top {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             gap: 4px;
             border-bottom: 1px dashed #FBC02D;
@@ -91,19 +92,18 @@
         .date-row {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 3px;
-            width: 100%;
             white-space: nowrap;
+            min-width: 0;
         }
 
         .day-date-label {
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 800;
             letter-spacing: -0.5px;
         }
 
-        .day-date-label.weekday { color: #000000 !important; }
+        .day-date-label.weekday { color: #5D4037 !important; }
         .day-date-label.sat { color: #1976D2 !important; }
         .day-date-label.sun, 
         .day-date-label.holiday { color: #D32F2F !important; }
@@ -118,13 +118,16 @@
             line-height: 1;
         }
 
+        /* 오른쪽 상단 점수 뱃지 */
         .score-badge {
             background: #FBC02D;
             color: #ffffff;
-            font-size: 12.5px;
+            font-size: 11px;
             font-weight: 800;
-            padding: 2px 7px;
+            padding: 2px 6px;
             border-radius: 6px;
+            white-space: nowrap;
+            margin-left: auto;
         }
 
         .card-body {
@@ -136,18 +139,20 @@
             width: 100%;
         }
 
+        /* 💥 총운 폰트 색상: #5D4037 변경 */
         .fortune-summary {
             font-size: 11.5px;
             font-weight: 700;
-            color: #212121;
+            color: #5D4037 !important;
             line-height: 1.4;
             word-break: break-all;
             text-align: center;
         }
 
+        /* 💥 재물운, 행운의 색상 텍스트 색상: #5D4037 변경 */
         .fortune-details {
             font-size: 10.5px;
-            color: #3E2723;
+            color: #5D4037 !important;
             background: rgba(255, 255, 255, 0.85);
             padding: 6px 4px;
             border-radius: 7px;
@@ -162,6 +167,7 @@
             display: block;
             word-break: break-all;
             font-weight: 600;
+            color: #5D4037 !important;
         }
 
         .empty-msg {
