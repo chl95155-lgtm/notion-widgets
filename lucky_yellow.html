@@ -6,6 +6,18 @@
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
+        :root {
+            --yellow-main: #FBC02D;      /* 메인 포인트 옐로우 */
+            --yellow-border: #FDD835;    /* 카드 테두리 옐로우 */
+            --yellow-accent: #F57F17;    /* 오늘 강조/뱃지 딥 골드 */
+            --bg-cream: #FFFDE7;         /* 부드러운 크림 옐로우 배경 */
+            --today-bg: #FFF59D;         /* 오늘 카드 강조 배경 */
+            --text-title: #E65100;       /* 타이틀 가독성 웜 오렌지 브라운 */
+            --text-dark: #3E2723;        /* 본문 가독성 딥 브라운 */
+            --sun-red: #D32F2F;          /* 일요일 & 공휴일 레드 */
+            --sat-blue: #1976D2;         /* 토요일 블루 */
+        }
+
         * {
             box-sizing: border-box !important;
             margin: 0;
@@ -27,14 +39,15 @@
             align-items: center;
         }
 
+        /* 겉 프레임: 선명한 옐로우 테두리 */
         .container {
             width: 100%;
             max-width: 100%;
             background: #ffffff;
-            border: 3px solid #FFFDE7 !important;
+            border: 3px solid var(--yellow-main) !important;
             border-radius: 20px;
             padding: 16px 12px;
-            box-shadow: 0 4px 15px rgba(251, 192, 45, 0.2);
+            box-shadow: 0 4px 15px rgba(251, 192, 45, 0.25);
         }
 
         .header {
@@ -44,7 +57,7 @@
 
         .header h2 {
             font-size: 18px;
-            color: #5D4037 !important;
+            color: var(--text-title) !important;
             font-weight: 800;
             letter-spacing: -0.3px;
         }
@@ -57,8 +70,8 @@
         }
 
         .day-card {
-            background: #FFFDE7 !important;
-            border: 2px solid #FBC02D !important;
+            background: var(--bg-cream) !important;
+            border: 2px solid var(--yellow-border) !important;
             border-radius: 14px;
             padding: 10px 7px;
             display: flex;
@@ -71,9 +84,9 @@
         }
 
         .day-card.is-today {
-            background: #FFF9C4 !important;
-            border: 2.5px solid #F57F17 !important;
-            box-shadow: 0 3px 10px rgba(245, 127, 23, 0.3) !important;
+            background: var(--today-bg) !important;
+            border: 2.5px solid var(--yellow-accent) !important;
+            box-shadow: 0 3px 10px rgba(245, 127, 23, 0.25) !important;
         }
 
         .card-top {
@@ -81,7 +94,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 4px;
-            border-bottom: 1px dashed #FBC02D;
+            border-bottom: 1px dashed var(--yellow-main);
             padding-bottom: 6px;
             margin-bottom: 6px;
             width: 100%;
@@ -101,13 +114,13 @@
             letter-spacing: -0.5px;
         }
 
-        .day-date-label.weekday { color: #5D4037 !important; }
-        .day-date-label.sat { color: #1976D2 !important; }
+        .day-date-label.weekday { color: var(--text-dark) !important; }
+        .day-date-label.sat { color: var(--sat-blue) !important; }
         .day-date-label.sun, 
-        .day-date-label.holiday { color: #D32F2F !important; }
+        .day-date-label.holiday { color: var(--sun-red) !important; }
 
         .today-tag {
-            background: #F57F17 !important;
+            background: var(--yellow-accent) !important;
             color: #ffffff !important;
             font-size: 9px;
             padding: 1px 4px;
@@ -117,7 +130,7 @@
         }
 
         .score-badge {
-            background: #FBC02D;
+            background: var(--yellow-main);
             color: #ffffff;
             font-size: 11px;
             font-weight: 800;
@@ -125,6 +138,7 @@
             border-radius: 6px;
             white-space: nowrap;
             margin-left: auto;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .card-body {
@@ -136,11 +150,11 @@
             width: 100%;
         }
 
-        /* 총운 텍스트: 폰트 사이즈 13px 확대, 상하/좌우 정중앙 정렬 */
+        /* 총운 텍스트: 고대비 딥 브라운 적용 */
         .fortune-summary {
             font-size: 13px;
             font-weight: 700;
-            color: #5D4037 !important;
+            color: var(--text-dark) !important;
             line-height: 1.5;
             word-break: break-all;
             text-align: center;
@@ -152,10 +166,12 @@
             padding: 0 2px;
         }
 
+        /* 세부 운세 박스: 화이트 반투명 + 옐로우 틴트 테두리 */
         .fortune-details {
             font-size: 10.5px;
-            color: #5D4037 !important;
-            background: rgba(255, 255, 255, 0.85);
+            color: var(--text-dark) !important;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--yellow-border);
             padding: 6px 4px;
             border-radius: 7px;
             line-height: 1.35;
@@ -169,11 +185,11 @@
             display: block;
             word-break: break-all;
             font-weight: 600;
-            color: #5D4037 !important;
+            color: var(--text-dark) !important;
         }
 
         .empty-msg {
-            color: #9E9E9E;
+            color: #8D6E63;
             font-size: 13px;
             text-align: center;
             padding: 20px 0;
