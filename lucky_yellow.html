@@ -7,15 +7,15 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            --frame-yellow: #E0A926;     /* 차분하고 부드러운 머스타드/허니 옐로우 */
-            --card-border: #E8BF5A;      /* 카드 기본 테두리 */
-            --today-border: #C67D0A;     /* 오늘 카드 강조 앰버 브라운 테두리 */
-            --today-bg: #FFF8D6;         /* 오늘 카드 은은한 강조 배경 */
-            --bg-cream: #FFFDF4;         /* 눈이 편안한 미색 크림 배경 */
-            --text-title: #4E342E;       /* 타이틀 딥 브라운 */
-            --text-dark: #3E2723;        /* 본문 가독성 딥 브라운 */
-            --sun-red: #D32F2F;          /* 일요일 & 공휴일 레드 */
-            --sat-blue: #1976D2;         /* 토요일 블루 */
+            --frame-yellow: #FFCA28;     /* 맑고 화사한 미드 옐로우 */
+            --card-border: #FFE082;      /* 은은하고 밝은 레몬 테두리 */
+            --today-border: #FFA000;     /* 오늘 카드 강조용 비비드 앰버 옐로우 */
+            --today-bg: #FFF9C4;         /* 상큼한 버터 옐로우 배경 */
+            --bg-cream: #FFFFFD;         /* 누런 느낌을 뺀 맑은 크림 화이트 */
+            --text-title: #E65100;       /* 타이틀 딥 오렌지 옐로우 */
+            --text-main: #2E2E2E;        /* 본문 가독성 차콜 */
+            --sun-red: #E53935;          /* 일요일 & 공휴일 레드 */
+            --sat-blue: #1E88E5;         /* 토요일 블루 */
         }
 
         * {
@@ -39,7 +39,7 @@
             align-items: center;
         }
 
-        /* 겉 프레임: 차분한 톤다운 허니 옐로우 */
+        /* 겉 프레임: 화사하고 밝은 옐로우 */
         .container {
             width: 100%;
             max-width: 100%;
@@ -47,7 +47,7 @@
             border: 2.5px solid var(--frame-yellow) !important;
             border-radius: 20px;
             padding: 16px 12px;
-            box-shadow: 0 4px 15px rgba(224, 169, 38, 0.18);
+            box-shadow: 0 4px 18px rgba(255, 202, 40, 0.22);
         }
 
         .header {
@@ -83,11 +83,11 @@
             overflow: hidden;
         }
 
-        /* 오늘 날짜 카드: 앰버 브라운 테두리 & 부드러운 하이라이트 */
+        /* 오늘 날짜 카드: 밝고 산뜻한 버터 옐로우 강조 */
         .day-card.is-today {
             background: var(--today-bg) !important;
             border: 2px solid var(--today-border) !important;
-            box-shadow: 0 3px 10px rgba(198, 125, 10, 0.2) !important;
+            box-shadow: 0 3px 10px rgba(255, 160, 0, 0.22) !important;
         }
 
         .card-top {
@@ -115,12 +115,11 @@
             letter-spacing: -0.5px;
         }
 
-        .day-date-label.weekday { color: var(--text-dark) !important; }
+        .day-date-label.weekday { color: var(--text-main) !important; }
         .day-date-label.sat { color: var(--sat-blue) !important; }
         .day-date-label.sun, 
         .day-date-label.holiday { color: var(--sun-red) !important; }
 
-        /* 오늘 태그: 차분한 앰버 톤 */
         .today-tag {
             background: var(--today-border) !important;
             color: #ffffff !important;
@@ -131,7 +130,6 @@
             line-height: 1;
         }
 
-        /* 점수 뱃지: 머스타드 허니 라벨 */
         .score-badge {
             background: var(--frame-yellow);
             color: #ffffff;
@@ -141,6 +139,7 @@
             border-radius: 6px;
             white-space: nowrap;
             margin-left: auto;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         .card-body {
@@ -155,7 +154,7 @@
         .fortune-summary {
             font-size: 13px;
             font-weight: 700;
-            color: var(--text-dark) !important;
+            color: var(--text-main) !important;
             line-height: 1.5;
             word-break: break-all;
             text-align: center;
@@ -169,8 +168,8 @@
 
         .fortune-details {
             font-size: 10.5px;
-            color: var(--text-dark) !important;
-            background: rgba(255, 255, 255, 0.9);
+            color: #424242 !important;
+            background: #ffffff;
             border: 1px solid var(--card-border);
             padding: 6px 4px;
             border-radius: 7px;
@@ -185,11 +184,11 @@
             display: block;
             word-break: break-all;
             font-weight: 600;
-            color: var(--text-dark) !important;
+            color: #424242 !important;
         }
 
         .empty-msg {
-            color: #8D6E63;
+            color: #9E9E9E;
             font-size: 13px;
             text-align: center;
             padding: 20px 0;
@@ -275,6 +274,7 @@
             });
 
             const days = getNext7Days();
+            
             const startDate = days[0].formattedDate.split('(')[0];
             const endDate = days[6].formattedDate.split('(')[0];
             document.getElementById('mainTitle').textContent = `✨ 한눈에 보는 7일 운세 (${startDate} ~ ${endDate}) ✨`;
