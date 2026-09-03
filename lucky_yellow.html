@@ -7,12 +7,12 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            --yellow-main: #FBC02D;      /* 메인 포인트 옐로우 */
-            --yellow-border: #FDD835;    /* 카드 테두리 옐로우 */
-            --yellow-accent: #F57F17;    /* 오늘 강조/뱃지 딥 골드 */
-            --bg-cream: #FFFDE7;         /* 부드러운 크림 옐로우 배경 */
-            --today-bg: #FFF59D;         /* 오늘 카드 강조 배경 */
-            --text-title: #E65100;       /* 타이틀 가독성 웜 오렌지 브라운 */
+            --frame-yellow: #E0A926;     /* 차분하고 부드러운 머스타드/허니 옐로우 */
+            --card-border: #E8BF5A;      /* 카드 기본 테두리 */
+            --today-border: #C67D0A;     /* 오늘 카드 강조 앰버 브라운 테두리 */
+            --today-bg: #FFF8D6;         /* 오늘 카드 은은한 강조 배경 */
+            --bg-cream: #FFFDF4;         /* 눈이 편안한 미색 크림 배경 */
+            --text-title: #4E342E;       /* 타이틀 딥 브라운 */
             --text-dark: #3E2723;        /* 본문 가독성 딥 브라운 */
             --sun-red: #D32F2F;          /* 일요일 & 공휴일 레드 */
             --sat-blue: #1976D2;         /* 토요일 블루 */
@@ -39,15 +39,15 @@
             align-items: center;
         }
 
-        /* 겉 프레임: 선명한 옐로우 테두리 */
+        /* 겉 프레임: 차분한 톤다운 허니 옐로우 */
         .container {
             width: 100%;
             max-width: 100%;
             background: #ffffff;
-            border: 3px solid var(yellow-border) !important;
+            border: 2.5px solid var(--frame-yellow) !important;
             border-radius: 20px;
             padding: 16px 12px;
-            box-shadow: 0 4px 15px rgba(251, 192, 45, 0.25);
+            box-shadow: 0 4px 15px rgba(224, 169, 38, 0.18);
         }
 
         .header {
@@ -71,7 +71,7 @@
 
         .day-card {
             background: var(--bg-cream) !important;
-            border: 2px solid var(--yellow-border) !important;
+            border: 1.5px solid var(--card-border) !important;
             border-radius: 14px;
             padding: 10px 7px;
             display: flex;
@@ -83,10 +83,11 @@
             overflow: hidden;
         }
 
+        /* 오늘 날짜 카드: 앰버 브라운 테두리 & 부드러운 하이라이트 */
         .day-card.is-today {
             background: var(--today-bg) !important;
-            border: 2.5px solid var(--yellow-accent) !important;
-            box-shadow: 0 3px 10px rgba(245, 127, 23, 0.25) !important;
+            border: 2px solid var(--today-border) !important;
+            box-shadow: 0 3px 10px rgba(198, 125, 10, 0.2) !important;
         }
 
         .card-top {
@@ -94,7 +95,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 4px;
-            border-bottom: 1px dashed var(--yellow-main);
+            border-bottom: 1px dashed var(--card-border);
             padding-bottom: 6px;
             margin-bottom: 6px;
             width: 100%;
@@ -119,8 +120,9 @@
         .day-date-label.sun, 
         .day-date-label.holiday { color: var(--sun-red) !important; }
 
+        /* 오늘 태그: 차분한 앰버 톤 */
         .today-tag {
-            background: var(--yellow-accent) !important;
+            background: var(--today-border) !important;
             color: #ffffff !important;
             font-size: 9px;
             padding: 1px 4px;
@@ -129,8 +131,9 @@
             line-height: 1;
         }
 
+        /* 점수 뱃지: 머스타드 허니 라벨 */
         .score-badge {
-            background: var(--yellow-main);
+            background: var(--frame-yellow);
             color: #ffffff;
             font-size: 11px;
             font-weight: 800;
@@ -138,7 +141,6 @@
             border-radius: 6px;
             white-space: nowrap;
             margin-left: auto;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .card-body {
@@ -150,11 +152,10 @@
             width: 100%;
         }
 
-        /* 총운 텍스트: 고대비 딥 브라운 적용 */
         .fortune-summary {
             font-size: 13px;
             font-weight: 700;
-            color: var(yellow-main) !important;
+            color: var(--text-dark) !important;
             line-height: 1.5;
             word-break: break-all;
             text-align: center;
@@ -166,12 +167,11 @@
             padding: 0 2px;
         }
 
-        /* 세부 운세 박스: 화이트 반투명 + 옐로우 틴트 테두리 */
         .fortune-details {
             font-size: 10.5px;
             color: var(--text-dark) !important;
             background: rgba(255, 255, 255, 0.9);
-            border: 1px solid var(--yellow-border);
+            border: 1px solid var(--card-border);
             padding: 6px 4px;
             border-radius: 7px;
             line-height: 1.35;
@@ -201,7 +201,7 @@
 
 <div class="container">
     <div class="header">
-        <h2 id="mainTitle">🍀 한눈에 보는 7일 운세 🍀</h2>
+        <h2 id="mainTitle">✨ 한눈에 보는 7일 운세 ✨</h2>
     </div>
     
     <div class="days-grid" id="daysGrid">
@@ -275,10 +275,9 @@
             });
 
             const days = getNext7Days();
-            
             const startDate = days[0].formattedDate.split('(')[0];
             const endDate = days[6].formattedDate.split('(')[0];
-            document.getElementById('mainTitle').textContent = `🍀 한눈에 보는 7일 운세 (${startDate} ~ ${endDate}) 🍀`;
+            document.getElementById('mainTitle').textContent = `✨ 한눈에 보는 7일 운세 (${startDate} ~ ${endDate}) ✨`;
 
             const gridContainer = document.getElementById('daysGrid');
             gridContainer.innerHTML = '';
@@ -317,7 +316,7 @@
                     <div class="card-body">
                         <p class="fortune-summary">${summary}</p>
                         <div class="fortune-details">
-                            <span class="detail-item">💰 ${money}</span>
+                            <span class="detail-item">🪙 ${money}</span>
                             <span class="detail-item">🎨 ${luckColor}</span>
                         </div>
                     </div>
