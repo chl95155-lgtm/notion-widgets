@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --frame-yellow: #FFCA28;
+            --card-border: #FFE082;
+            --today-border: #FFA000;
+            --today-bg: #FFF9C4;
+            --bg-cream: #FFFFFD;
+            --text-title: #E65100;
+            --text-main: #2E2E2E;
+            --schedule-tag: #E0F2FE;
+            --schedule-text: #0284C7;
+            --todo-tag: #FEF3C7;
+            --todo-text: #D97706;
+        }
+
+        * { box-sizing: border-box !important; margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; background: transparent; font-family: 'Pretendard', sans-serif; overflow-x: hidden; }
+        body { padding: 8px; display: flex; justify-content: center; align-items: center; }
+
+        .container {
+            width: 100%;
+            background: #ffffff;
+            border: 2.5px solid var(--frame-yellow);
+            border-radius: 20px;
+            padding: 16px 12px;
+            box-shadow: 0 4px 18px rgba(255, 202, 40, 0.22);
+        }
+
+        .header { text-align: center; margin-bottom: 14px; }
+        .header h2 { font-size: 18px; color: var(--text-title); font-weight: 800; letter-spacing: -0.3px; }
+
+        .days-grid {
+            display: grid !important;
+            grid-template-columns: repeat(7, calc((100% - 54px) / 7)) !important;
+            gap: 9px !important;
+            width: 100% !important;
+        }
+
+        .day-card {
+            background: var(--bg-cream);
+            border: 1.5px solid var(--card-border);
+            border-radius: 14px;
+            padding: 10px 7px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 200px;
+            overflow: hidden;
+        }
+
+        .day-card.is-today {
+            background: var(--today-bg);
+            border: 2px solid var(--today-border);
+            box-shadow: 0 3px 10px rgba(255, 160, 0, 0.22);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--card-border);
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .day-date-label { font-size: 13px; font-weight: 800; color: var(--text-main); }
+        .today-tag {
+            background: var(--today-border);
+            color: #ffffff;
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 800;
+        }
+
+        .items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .event-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 6px;
+            border-radius: 6px;
+            line-height: 1.3;
+            word-break: break-all;
+        }
+
+        .event-badge.schedule {
+            background: var(--schedule-tag);
+            color: var(--schedule-text);
+            border-left: 2px solid var(--schedule-text);
+        }
+
+        .event-badge.todo {
+            background: var(--todo-tag);
+            color: var(--todo-text);
+            border-left: 2px solid var(--todo-text);
+        }
+
+        .event-badge.done {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .empty-day {
+            font-size: 11px;
+            color: #BDBDBD;
+            text-align: center;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2 id="mainTitle">🗓️ 7일 일정 & 할 일</h2>
+    </div>
+    <div class="days-grid" id="daysGrid"></div>
+</div>
+
+<script>
+    function getNext7Days() {
+        const now = new Date();
+        const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
+        const days = [];
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(now);
+            d.setDate(now.getDate() + i);
+
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const date = String(d.getDate()).padStart(2, '0');
+            const dayOfWeek = d.getDay();
+
+            days.push({
+                isoDate: `${y}-${m}-${date}`,
+                displayDate: `${m}.${date}(${shortDays[dayOfWeek]})`,
+                isToday: i === 0
+            });
+        }
+        return days;
+    }
+
+    async function loadNotionEvents() {
+        const grid = document.getElementById('daysGrid');
+        grid.innerHTML = '<div style="grid-column: span 7; text-align: center; font-size: 12px; color: #888;">노션 데이터를 불러오는 중...</div>';
+
+        const days = getNext7Days();
+        document.getElementById('mainTitle').textContent = `🗓️ 7일 일정 & 할 일 (${days[0].displayDate.split('(')[0]} ~ ${days[6].displayDate.split('(')[0]})`;
+
+        try {
+            const res = await fetch('/api/get-events');
+            const data = await res.json();
+            const allEvents = data.events || [];
+
+            grid.innerHTML = '';
+
+            days.forEach(day => {
+                const card = document.createElement('div');
+                card.className = `day-card ${day.isToday ? 'is-today' : ''}`;
+
+                const dayEvents = allEvents.filter(e => e.date === day.isoDate);
+
+                let itemsHtml = '';
+                if (dayEvents.length === 0) {
+                    itemsHtml = '<div class="empty-day">-</div>';
+                } else {
+                    dayEvents.forEach(item => {
+                        if (item.type === 'schedule') {
+                            const timeStr = item.time ? `[${item.time}] ` : '';
+                            itemsHtml += `<div class="event-badge schedule">📅 ${timeStr}${item.title}</div>`;
+                        } else {
+                            itemsHtml += `<div class="event-badge todo ${item.isDone ? 'done' : ''}">✅ ${item.title}</div>`;
+                        }
+                    });
+                }
+
+                card.innerHTML = `
+                    <div class="card-top">
+                        <span class="day-date-label">${day.displayDate}</span>
+                        ${day.isToday ? '<span class="today-tag">오늘</span>' : ''}
+                    </div>
+                    <div class="items-container">${itemsHtml}</div>
+                `;
+                grid.appendChild(card);
+            });
+
+        } catch (err) {
+            grid.innerHTML = '<div style="grid-column: span 7; text-align: center; font-size: 12px; color: red;">연동 오류가 발생했습니다.</div>';
+        }
+    }
+
+    loadNotionEvents();
+</script>
+</body>
+</html>
