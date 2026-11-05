@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: '환경 변수 설정이 누락되었습니다.' });
   }
 
-  // 오늘 기준 -1일부터 +7일까지 데이터 조회 범위 설정
+  // 오늘 기준 어제(-1일)부터 7일간 데이터 필터링 기준일 계산
   const now = new Date();
   const startDate = new Date(now.setDate(now.getDate() - 1)).toISOString().split('T')[0];
 
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   };
 
   try {
-    // 1. 일정 DB 조회 (날짜 속성명: '날짜', 제목 속성명: '이름' 기준)
+    // 1. 일정 DB 조회 (날짜: '날짜', 제목: '이름')
     const scheduleRes = await fetch(`https://api.notion.com/v1/databases/${SCHEDULE_DB_ID}/query`, {
       method: 'POST',
       headers,
@@ -36,7 +36,11 @@ export default async function handler(req, res) {
     });
     const scheduleData = await scheduleRes.json();
 
-    // 2. 할 일 DB 조회 (날짜 속성명: '마감일' 또는 '날짜', 상태 속성: '상태' 또는 체크박스)
+    if (scheduleData.object === 'error') {
+      return res.status(500).json({ error: `일정 DB 조회 오류: ${scheduleData.message}` });
+    }
+
+    // 2. 할 일 DB 조회 (날짜: '날짜', 제목: '계획')
     const todoRes = await fetch(`https://api.notion.com/v1/databases/${TODO_DB_ID}/query`, {
       method: 'POST',
       headers,
@@ -49,40 +53,5 @@ export default async function handler(req, res) {
     });
     const todoData = await todoRes.json();
 
-    // 데이터 가공 및 표준화
-    const events = [];
-
-    // 일정 가공
-    (scheduleData.results || []).forEach(page => {
-      const title = page.properties['이름']?.title?.[0]?.plain_text || '제목 없음';
-      const dateProp = page.properties['날짜']?.date;
-      if (dateProp) {
-        events.push({
-          type: 'schedule',
-          title: title,
-          date: dateProp.start.split('T')[0],
-          time: dateProp.start.includes('T') ? dateProp.start.split('T')[1].substring(0, 5) : null
-        });
-      }
-    });
-
-    // 할 일 가공
-    (todoData.results || []).forEach(page => {
-      const title = page.properties['이름']?.title?.[0]?.plain_text || '할 일 없음';
-      const dateProp = page.properties['날짜']?.date;
-      const isDone = page.properties['완료']?.checkbox || false;
-      if (dateProp) {
-        events.push({
-          type: 'todo',
-          title: title,
-          date: dateProp.start.split('T')[0],
-          isDone: isDone
-        });
-      }
-    });
-
-    return res.status(200).json({ events });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
+    if (todoData.object === 'error') {
+      return
