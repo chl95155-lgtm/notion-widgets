@@ -75,3 +75,103 @@
             background: var(--today-border);
             color: #ffffff;
             font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 800;
+        }
+
+        .items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .event-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 6px;
+            border-radius: 6px;
+            line-height: 1.3;
+            word-break: break-all;
+        }
+
+        .event-badge.schedule {
+            background: var(--schedule-tag);
+            color: var(--schedule-text);
+            border-left: 2px solid var(--schedule-text);
+        }
+
+        .event-badge.todo {
+            background: var(--todo-tag);
+            color: var(--todo-text);
+            border-left: 2px solid var(--todo-text);
+        }
+
+        .event-badge.done {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .empty-day {
+            font-size: 11px;
+            color: #BDBDBD;
+            text-align: center;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .status-box {
+            grid-column: span 7;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            word-break: break-all;
+            background: #FFF3E0;
+            color: #E65100;
+            border: 1px solid #FFE0B2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2 id="mainTitle">🗓️ 7일 일정 & 할 일</h2>
+    </div>
+    <div id="statusBox" class="status-box">데이터를 확인하는 중입니다...</div>
+    <div class="days-grid" id="daysGrid"></div>
+</div>
+
+<script>
+    function getNext7Days() {
+        const now = new Date();
+        const shortDays = ["일", "월", "화", "수", "목", "금", "토"];
+        const days = [];
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(now);
+            d.setDate(now.getDate() + i);
+
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const date = String(d.getDate()).padStart(2, '0');
+            const dayOfWeek = d.getDay();
+
+            days.push({
+                isoDate: `${y}-${m}-${date}`,
+                displayDate: `${m}.${date}(${shortDays[dayOfWeek]})`,
+                isToday: i === 0
+            });
+        }
+        return days;
+    }
+
+    function renderCards(days, events) {
+        const grid = document.getElementById('daysGrid');
+        grid.innerHTML = '';
+
+        days.forEach(day => {
+            const card = document.createElement('div
