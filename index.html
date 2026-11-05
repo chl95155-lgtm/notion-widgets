@@ -121,6 +121,18 @@
             margin-top: auto;
             margin-bottom: auto;
         }
+
+        .error-box {
+            grid-column: span 7;
+            text-align: center;
+            font-size: 13px;
+            color: #D32F2F;
+            background: #FFEBEE;
+            padding: 16px;
+            border-radius: 10px;
+            line-height: 1.5;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -158,54 +170,4 @@
 
     async function loadNotionEvents() {
         const grid = document.getElementById('daysGrid');
-        grid.innerHTML = '<div style="grid-column: span 7; text-align: center; font-size: 12px; color: #888;">노션 데이터를 불러오는 중...</div>';
-
-        const days = getNext7Days();
-        document.getElementById('mainTitle').textContent = `🗓️ 7일 일정 & 할 일 (${days[0].displayDate.split('(')[0]} ~ ${days[6].displayDate.split('(')[0]})`;
-
-        try {
-            const res = await fetch('/api/get-events');
-            const data = await res.json();
-            const allEvents = data.events || [];
-
-            grid.innerHTML = '';
-
-            days.forEach(day => {
-                const card = document.createElement('div');
-                card.className = `day-card ${day.isToday ? 'is-today' : ''}`;
-
-                const dayEvents = allEvents.filter(e => e.date === day.isoDate);
-
-                let itemsHtml = '';
-                if (dayEvents.length === 0) {
-                    itemsHtml = '<div class="empty-day">-</div>';
-                } else {
-                    dayEvents.forEach(item => {
-                        if (item.type === 'schedule') {
-                            const timeStr = item.time ? `[${item.time}] ` : '';
-                            itemsHtml += `<div class="event-badge schedule">📅 ${timeStr}${item.title}</div>`;
-                        } else {
-                            itemsHtml += `<div class="event-badge todo ${item.isDone ? 'done' : ''}">✅ ${item.title}</div>`;
-                        }
-                    });
-                }
-
-                card.innerHTML = `
-                    <div class="card-top">
-                        <span class="day-date-label">${day.displayDate}</span>
-                        ${day.isToday ? '<span class="today-tag">오늘</span>' : ''}
-                    </div>
-                    <div class="items-container">${itemsHtml}</div>
-                `;
-                grid.appendChild(card);
-            });
-
-        } catch (err) {
-            grid.innerHTML = '<div style="grid-column: span 7; text-align: center; font-size: 12px; color: red;">연동 오류가 발생했습니다.</div>';
-        }
-    }
-
-    loadNotionEvents();
-</script>
-</body>
-</html>
+        grid.innerHTML = '<div style="grid-column: span 7; text-align: center; font-size: 12px; color: #8
